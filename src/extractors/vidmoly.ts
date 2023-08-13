@@ -1,7 +1,7 @@
-import { VideoExtractor, IVideo } from '../models';
+import { VideoExtractor, IVideo } from "../types";
 
 class VidMoly extends VideoExtractor {
-  protected override serverName = 'vidmoly';
+  protected override serverName = "vidmoly";
   protected override sources: IVideo[] = [];
 
   override extract = async (videoUrl: URL): Promise<IVideo[]> => {
@@ -17,23 +17,26 @@ class VidMoly extends VideoExtractor {
       });
 
       this.sources.push({
-        quality: 'auto',
+        quality: "auto",
         url: links[1],
-        isM3U8: links[1].includes('.m3u8'),
+        isM3U8: links[1].includes(".m3u8"),
       });
 
-      if (m3u8Content.data.includes('EXTM3U')) {
-        const videoList = m3u8Content.data.split('#EXT-X-STREAM-INF:');
+      if (m3u8Content.data.includes("EXTM3U")) {
+        const videoList = m3u8Content.data.split("#EXT-X-STREAM-INF:");
         for (const video of videoList ?? []) {
-          if (!video.includes('m3u8')) continue;
+          if (!video.includes("m3u8")) continue;
 
-          const url = video.split('\n')[1];
-          const quality = video.split('RESOLUTION=')[1].split(',')[0].split('x')[1];
+          const url = video.split("\n")[1];
+          const quality = video
+            .split("RESOLUTION=")[1]
+            .split(",")[0]
+            .split("x")[1];
 
           this.sources.push({
             url: url,
             quality: `${quality}`,
-            isM3U8: url.includes('.m3u8'),
+            isM3U8: url.includes(".m3u8"),
           });
         }
       }

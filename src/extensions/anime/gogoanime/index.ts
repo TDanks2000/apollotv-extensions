@@ -14,7 +14,7 @@ import {
   MediaProvier,
 } from "../../../types";
 
-import metadata from "./extension.json";
+import * as metadata from "./extension.json";
 import { GogoCDN, StreamSB } from "../../../extractors";
 import { USER_AGENT } from "../../../utils";
 

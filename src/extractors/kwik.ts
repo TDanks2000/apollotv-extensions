@@ -1,10 +1,10 @@
-import { VideoExtractor, IVideo } from '../models';
+import { VideoExtractor, IVideo } from "../types";
 
 class Kwik extends VideoExtractor {
-  protected override serverName = 'kwik';
+  protected override serverName = "kwik";
   protected override sources: IVideo[] = [];
 
-  private readonly host = 'https://animepahe.com';
+  private readonly host = "https://animepahe.com";
 
   override extract = async (videoUrl: URL): Promise<IVideo[]> => {
     try {
@@ -12,13 +12,13 @@ class Kwik extends VideoExtractor {
         headers: { Referer: this.host },
       });
 
-      const source = eval(/(eval)(\(f.*?)(\n<\/script>)/s.exec(data)![2].replace('eval', '')).match(
-        /https.*?m3u8/
-      );
+      const source = eval(
+        /(eval)(\(f.*?)(\n<\/script>)/s.exec(data)![2].replace("eval", "")
+      ).match(/https.*?m3u8/);
 
       this.sources.push({
         url: source[0],
-        isM3U8: source[0].includes('.m3u8'),
+        isM3U8: source[0].includes(".m3u8"),
       });
 
       return this.sources;

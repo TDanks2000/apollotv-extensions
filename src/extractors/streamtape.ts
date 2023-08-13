@@ -1,15 +1,15 @@
-import { load } from 'cheerio';
+import { load } from "cheerio";
 
-import { VideoExtractor, IVideo } from '../models';
+import { VideoExtractor, IVideo } from "../types";
 
 class StreamTape extends VideoExtractor {
-  protected override serverName = 'StreamTape';
+  protected override serverName = "StreamTape";
   protected override sources: IVideo[] = [];
 
   override extract = async (videoUrl: URL): Promise<IVideo[]> => {
     try {
       const { data } = await this.client.get(videoUrl.href).catch(() => {
-        throw new Error('Video not found');
+        throw new Error("Video not found");
       });
 
       const $ = load(data);
@@ -19,13 +19,13 @@ class StreamTape extends VideoExtractor {
         .split("+ ('");
 
       sh = sh.substring(3);
-      fh = fh.replace(/\'/g, '');
+      fh = fh.replace(/\'/g, "");
 
       const url = `https:${fh}${sh}`;
 
       this.sources.push({
         url: url,
-        isM3U8: url.includes('.m3u8'),
+        isM3U8: url.includes(".m3u8"),
       });
 
       return this.sources;
