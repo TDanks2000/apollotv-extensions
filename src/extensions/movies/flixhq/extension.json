@@ -1,0 +1,18 @@
+{
+  "type": "movie",
+  "name": "flixhq",
+  "version": "0.0.1",
+  "image": "https://img.flixhq.to/xxrz/400x400/100/ab/5f/ab5f0e1996cc5b71919e10e910ad593e/ab5f0e1996cc5b71919e10e910ad593e.png",
+  "author": {
+    "name": "Tommy",
+    "image": "https://img.flixhq.to/xxrz/400x400/100/ab/5f/ab5f0e1996cc5b71919e10e910ad593e/ab5f0e1996cc5b71919e10e910ad593e.png",
+    "link": "https://github.com/tdanks2000"
+  },
+  "code": {
+    "main": "index.js",
+    "utils": {
+      "mainURL": "https://flixhq.to",
+      "apiURL": null
+    }
+  }
+}
