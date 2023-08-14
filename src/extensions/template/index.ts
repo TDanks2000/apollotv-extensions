@@ -1,7 +1,21 @@
-import { IEpisodeServer, IMediaInfo, ISource, MediaProvier } from "../../types";
+import {
+  IEpisodeServer,
+  IMediaInfo,
+  IMediaResult,
+  ISearch,
+  ISource,
+  MediaProvier,
+} from "../../types";
+
+import * as metadata from "./extension.json";
 
 class Template extends MediaProvier {
-  protected baseUrl: string = "";
+  protected baseUrl: string = metadata.code.utils.mainURL;
+  protected apiURL: string = metadata.code.utils.apiURL;
+
+  search(query: string, ...args: any[]): Promise<ISearch<IMediaResult>> {
+    throw new Error("Method not implemented.");
+  }
 
   getMediaInfo(animeId: string, ...args: any): Promise<IMediaInfo> {
     throw new Error("Method not implemented.");
@@ -12,10 +26,6 @@ class Template extends MediaProvier {
   }
 
   getMediaServers(episodeId: string): Promise<IEpisodeServer[]> {
-    throw new Error("Method not implemented.");
-  }
-
-  search(query: string, ...args: any[]): Promise<unknown> {
     throw new Error("Method not implemented.");
   }
 }

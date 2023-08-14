@@ -166,6 +166,11 @@ export enum MediaStatus {
 export enum SubOrDub {
   SUB = "sub",
   DUB = "dub",
+}
+
+export enum SubOrDubOrBoth {
+  SUB = "sub",
+  DUB = "dub",
   BOTH = "both",
 }
 

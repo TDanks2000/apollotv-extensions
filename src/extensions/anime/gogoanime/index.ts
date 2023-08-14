@@ -1,9 +1,4 @@
-import {
-  MediaFormat,
-  MediaStatus,
-  StreamingServers,
-  SubOrDub,
-} from "../../../types/types";
+import { MediaFormat, MediaStatus, StreamingServers, SubOrDub } from "../../../types/types";
 import { load } from "cheerio";
 import {
   IEpisodeServer,
@@ -22,10 +17,7 @@ class GogoAnime extends MediaProvier {
   protected baseUrl: string = metadata.code.utils.mainURL;
   protected ajaxUrl: string = metadata.code.utils.apiURL;
 
-  override async search(
-    query: string,
-    page: number = 1
-  ): Promise<ISearch<IMediaResult>> {
+  override async search(query: string, page: number = 1): Promise<ISearch<IMediaResult>> {
     const searchResult: ISearch<IMediaResult> = {
       currentPage: page,
       hasNextPage: false,
@@ -34,16 +26,13 @@ class GogoAnime extends MediaProvier {
 
     try {
       const res = await this.client.get(
-        `${this.baseUrl}/search.html?keyword=${encodeURIComponent(
-          query
-        )}&page=${page}`
+        `${this.baseUrl}/search.html?keyword=${encodeURIComponent(query)}&page=${page}`
       );
 
       const $ = load(res.data);
 
       searchResult.hasNextPage =
-        $("div.anime_name.new_series > div > div > ul > li.selected").next()
-          .length > 0;
+        $("div.anime_name.new_series > div > div > ul > li.selected").next().length > 0;
 
       $("div.last_episodes > ul > li").each((i, el) => {
         searchResult.results.push({
@@ -52,11 +41,7 @@ class GogoAnime extends MediaProvier {
           url: `${this.baseUrl}/${$(el).find("p.name > a").attr("href")}`,
           image: $(el).find("div > a > img").attr("src"),
           releaseDate: $(el).find("p.released").text().trim(),
-          subOrDub: $(el)
-            .find("p.name > a")
-            .text()
-            .toLowerCase()
-            .includes("dub")
+          subOrDub: $(el).find("p.name > a").text().toLowerCase().includes("dub")
             ? SubOrDub.DUB
             : SubOrDub.SUB,
         });
@@ -134,10 +119,7 @@ class GogoAnime extends MediaProvier {
         animeInfo.genres?.push($(el).attr("title")!.toString());
       });
 
-      const ep_start = $("#episode_page > li")
-        .first()
-        .find("a")
-        .attr("ep_start");
+      const ep_start = $("#episode_page > li").first().find("a").attr("ep_start");
       const ep_end = $("#episode_page > li").last().find("a").attr("ep_end");
       const movie_id = $("#movie_id").attr("value");
       const alias = $("#alias_anime").attr("value");
@@ -208,30 +190,24 @@ class GogoAnime extends MediaProvier {
 
       switch (server) {
         case StreamingServers.GogoCDN:
-          serverUrl = new URL(
-            `https:${$("#load_anime > div > div > iframe").attr("src")}`
-          );
+          serverUrl = new URL(`https:${$("#load_anime > div > div > iframe").attr("src")}`);
           break;
         case StreamingServers.VidStreaming:
           serverUrl = new URL(
-            `https:${$(
-              "div.anime_video_body > div.anime_muti_link > ul > li.vidcdn > a"
-            )
+            `https:${$("div.anime_video_body > div.anime_muti_link > ul > li.vidcdn > a")
               .attr("data-video")
               ?.replace(".pro", ".net")}`
           );
           break;
         case StreamingServers.StreamSB:
           serverUrl = new URL(
-            $(
-              "div.anime_video_body > div.anime_muti_link > ul > li.streamsb > a"
-            ).attr("data-video")!
+            $("div.anime_video_body > div.anime_muti_link > ul > li.streamsb > a").attr(
+              "data-video"
+            )!
           );
           break;
         default:
-          serverUrl = new URL(
-            `https:${$("#load_anime > div > div > iframe").attr("src")}`
-          );
+          serverUrl = new URL(`https:${$("#load_anime > div > div > iframe").attr("src")}`);
           break;
       }
 
@@ -251,21 +227,15 @@ class GogoAnime extends MediaProvier {
 
       const servers: IEpisodeServer[] = [];
 
-      $("div.anime_video_body > div.anime_muti_link > ul > li").each(
-        (i, el) => {
-          let url = $(el).find("a").attr("data-video");
-          if (!url?.startsWith("http")) url = `https:${url}`;
+      $("div.anime_video_body > div.anime_muti_link > ul > li").each((i, el) => {
+        let url = $(el).find("a").attr("data-video");
+        if (!url?.startsWith("http")) url = `https:${url}`;
 
-          servers.push({
-            name: $(el)
-              .find("a")
-              .text()
-              .replace("Choose this server", "")
-              .trim(),
-            url: url,
-          });
-        }
-      );
+        servers.push({
+          name: $(el).find("a").text().replace("Choose this server", "").trim(),
+          url: url,
+        });
+      });
 
       return servers;
     } catch (err) {
