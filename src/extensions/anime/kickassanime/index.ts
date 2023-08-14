@@ -165,3 +165,7 @@ class Kickassanime extends MediaProvier {
 }
 
 export default Kickassanime;
+
+/**
+ * THANK YOU ENIMAX FOR FIGURING MOST OF THIS OUT
+ */
