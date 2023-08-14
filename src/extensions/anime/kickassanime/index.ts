@@ -11,8 +11,10 @@ import {
 } from "../../../types";
 import { USER_AGENT } from "../../../utils";
 
+import CryptoJS from "crypto-js";
+
 import * as metadata from "./extension.json";
-import { Episode, EpisodeResult, Image, Info, Search } from "./types";
+import { Episode, EpisodeInfo, EpisodeResult, Image, Info, Search } from "./types";
 
 class Kickassanime extends MediaProvier {
   protected baseUrl = metadata.code.utils.mainURL;
@@ -60,7 +62,7 @@ class Kickassanime extends MediaProvier {
     return searchResult;
   }
 
-  override async getMediaInfo(id: string, subOrDub: SubOrDub): Promise<IMediaInfo> {
+  override async getMediaInfo(id: string, subOrDub: SubOrDub = SubOrDub.SUB): Promise<IMediaInfo> {
     const animeInfo: IMediaInfo = {
       id: "",
       title: "",
@@ -104,12 +106,188 @@ class Kickassanime extends MediaProvier {
     return animeInfo;
   }
 
-  getMediaSources(episodeId: string, ...args: any): Promise<ISource> {
-    throw new Error("Method not implemented.");
+  override async getMediaSources(
+    showId: string,
+    episodeId: `ep-${number}-${string}`,
+    server: "duck" | "bird" = "duck"
+  ): Promise<ISource> {
+    try {
+      const servers = await this.getMediaServers(showId, episodeId);
+
+      const serverItems = servers.filter(
+        (item) => item.name.toLowerCase() === "duck" || item.name.toLowerCase() === "bird"
+      );
+
+      const serverItem =
+        serverItems.find((item) => item.name.toLowerCase() === server) || serverItems[0];
+
+      if (!serverItem) throw new Error("Server not found");
+
+      const name = serverItem.name.toLowerCase();
+      const url = new URL(serverItem.url);
+      const isBirb = name === "bird";
+      const usesMid = name === "duck";
+      const order = JSON.parse(
+        await this.MakeFetch(`https://raw.githubusercontent.com/enimax-anime/gogo/main/KAA.json`)
+      )[server];
+
+      const playerHTML = await this.MakeFetch(url.toString(), {
+        headers: {
+          "User-Agent": USER_AGENT,
+        },
+      });
+
+      const cid = playerHTML.split("cid:")[1].split("'")[1].trim();
+      const metaData = CryptoJS.enc.Hex.parse(cid).toString(CryptoJS.enc.Utf8);
+      const sigArray = [];
+
+      let key = "";
+
+      try {
+        const res = await fetch(
+          `https://raw.githubusercontent.com/enimax-anime/kaas/${serverItem.name}/key.txt`
+        );
+        if (res.status === 404) {
+          throw new Error("Not found");
+        } else {
+          key = await res.text();
+        }
+      } catch (err) {
+        key = await this.MakeFetch(
+          `https://raw.githubusercontent.com/enimax-anime/kaas/duck/key.txt`
+        );
+      }
+
+      const signatureItems: any = {
+        SIG: playerHTML.split("signature:")[1].split("'")[1].trim(),
+        USERAGENT: USER_AGENT,
+        IP: metaData.split("|")[0],
+        ROUTE: metaData.split("|")[1].replace("player.php", "source.php"),
+        KEY: key,
+        TIMESTAMP: Math.floor(Date.now() / 1000),
+        MID: url.searchParams.get(usesMid ? "mid" : "id"),
+      };
+      console.log(url.searchParams);
+
+      for (const item of order) {
+        sigArray.push(signatureItems[item]);
+      }
+      const sig = CryptoJS.SHA1(sigArray.join("")).toString(CryptoJS.enc.Hex);
+
+      const result = JSON.parse(
+        await this.MakeFetch(
+          `${url.origin}${signatureItems.ROUTE}?${!usesMid ? "id" : "mid"}=${signatureItems.MID}${
+            isBirb ? "" : "&e=" + signatureItems.TIMESTAMP
+          }&s=${sig}`,
+          {
+            headers: {
+              referer: `${url.origin}${signatureItems.ROUTE.replace("source.php", "player.php")}?${
+                !usesMid ? "id" : "mid"
+              }=${signatureItems.MID}`,
+            },
+          }
+        )
+      ).data;
+
+      const finalResult = JSON.parse(
+        CryptoJS.AES.decrypt(result.split(":")[0], CryptoJS.enc.Utf8.parse(signatureItems.KEY), {
+          mode: CryptoJS.mode.CBC,
+          iv: CryptoJS.enc.Hex.parse(result.split(":")[1]),
+          keySize: 256,
+        }).toString(CryptoJS.enc.Utf8)
+      );
+
+      let hlsURL = "",
+        dashURL = "";
+
+      if (finalResult.hls) {
+        hlsURL = finalResult.hls.startsWith("//") ? `https:${finalResult.hls}` : finalResult.hls;
+
+        const hasSubtitles = finalResult.subtitles?.length > 0;
+
+        return {
+          sources: [
+            {
+              type: "HLS",
+              name: "HLS",
+              url: hlsURL,
+            },
+          ],
+          subtitles: !hasSubtitles
+            ? []
+            : finalResult.subtitles.map((sub: any) => ({
+                label: `${sub.name} - ${serverItem.name}`,
+                file: sub.src.startsWith("//") ? `https:${sub.src}` : new URL(sub.src, url).href,
+              })),
+          intro: {
+            start: finalResult.skip?.intro?.start,
+            end: finalResult.skip?.intro?.end,
+          },
+        };
+      }
+
+      if (finalResult.dash) {
+        dashURL = finalResult.dash.startsWith("//")
+          ? `https:${finalResult.dash}`
+          : finalResult.dash;
+
+        const hasSubtitles = finalResult.subtitles?.length > 0;
+
+        return {
+          sources: [
+            {
+              type: "dash",
+              name: "DASH",
+              url: dashURL,
+            },
+          ],
+          subtitles: !hasSubtitles
+            ? []
+            : finalResult.subtitles.map((sub: any) => ({
+                label: `${sub.name} - ${serverItem.name}`,
+                file: sub.src.startsWith("//") ? `https:${sub.src}` : new URL(sub.src, url).href,
+              })),
+          intro: {
+            start: finalResult.skip?.intro?.start,
+            end: finalResult.skip?.intro?.end,
+          },
+        };
+      }
+
+      throw new Error("No sources found");
+    } catch (error) {
+      console.error(error);
+      throw new Error((error as Error).message);
+    }
   }
 
-  getMediaServers(episodeId: string): Promise<IEpisodeServer[]> {
-    throw new Error("Method not implemented.");
+  override async getMediaServers(
+    showId: string,
+    episodeId: `ep-${number}-${string}`
+  ): Promise<IEpisodeServer[]> {
+    try {
+      const { data } = await this.client.get<EpisodeInfo>(
+        `${this.apiURL}/show/${showId}/episode/${episodeId}`,
+        {
+          headers: {
+            "User-Agent": USER_AGENT,
+          },
+        }
+      );
+
+      const servers: IEpisodeServer[] = [];
+
+      for await (const server of data.servers) {
+        servers.push({
+          name: server.shortName,
+          url: server.src,
+        });
+      }
+
+      return servers;
+    } catch (error) {
+      throw new Error((error as Error).message);
+    }
   }
 
   private getImageUrl = (poster: Image, type: "banner" | "poster" = "poster") => {
@@ -155,14 +333,37 @@ class Kickassanime extends MediaProvier {
 
   private formatEpisode(episode: EpisodeResult): IMediaEpisode {
     return {
-      id: episode.slug,
+      id: `ep-${episode.episode_number}-${episode.slug}`,
       title: episode.title,
       number: episode.episode_number,
       image: this.getImageUrl(episode.thumbnail),
       duration: episode.duration_ms,
     };
   }
+
+  private async MakeFetch(url: string, options = {}): Promise<any> {
+    return new Promise(function (resolve, reject) {
+      fetch(url, options)
+        .then((response) => response.text())
+        .then((response) => {
+          console.log("resp", response);
+          resolve(response);
+        })
+        .catch(function (err) {
+          reject(new Error(`${err.message}: ${url}`));
+        });
+    });
+  }
 }
+
+(async () => {
+  const kaa = new Kickassanime();
+
+  // const info = await kaa.getMediaInfo("odd-taxi-8b25");
+  const sources = await kaa.getMediaSources("oshi-no-ko-38b7", "ep-1-a9fa61");
+
+  console.log(sources);
+})();
 
 export default Kickassanime;
 

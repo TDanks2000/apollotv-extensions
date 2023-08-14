@@ -55,6 +55,35 @@ export interface EpisodeResult {
   thumbnail: Image;
 }
 
+export interface EpisodeInfo {
+  title: string;
+  title_en: string;
+  synopsis: string;
+  episode_title: string;
+  episode_synopsis: string;
+  episode_number: number;
+  episode_string: string;
+  language: string;
+  duration_ms: number;
+  thumbnail: Image;
+  poster: Image;
+  banner: Image;
+  broadcast_day: string;
+  broadcast_time: string;
+  slug: string;
+  show_slug: string;
+  type: string;
+  servers: Server[];
+  next_ep_slug: string;
+  prev_ep_slug: string;
+}
+
+export interface Server {
+  name: string;
+  shortName: string;
+  src: string;
+}
+
 export type Image = {
   formats: string[];
   sm: string;
