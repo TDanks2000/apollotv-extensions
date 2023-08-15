@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "allowJs": true,
+    "checkJs": false,
+    "outDir": "./dist",
+    "sourceMap": true,
+    "strict": true,
+    "alwaysStrict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true
+  },
+  "include": ["**/*"]
+}

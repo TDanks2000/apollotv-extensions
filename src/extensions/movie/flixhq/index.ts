@@ -16,10 +16,7 @@ import { MixDrop, VidCloud } from "../../../extractors";
 class FlixHQ extends MediaProvier {
   protected baseUrl: string = metadata.code.utils.mainURL;
 
-  override async search(
-    query: string,
-    page: number = 1
-  ): Promise<ISearch<IMediaResult>> {
+  override async search(query: string, page: number = 1): Promise<ISearch<IMediaResult>> {
     const searchResult: ISearch<IMediaResult> = {
       currentPage: page,
       hasNextPage: false,
@@ -32,33 +29,22 @@ class FlixHQ extends MediaProvier {
       const { data } = await this.client.get(url);
       const $ = load(data);
 
-      const navSelector =
-        "div.pre-pagination:nth-child(3) > nav:nth-child(1) > ul:nth-child(1)";
+      const navSelector = "div.pre-pagination:nth-child(3) > nav:nth-child(1) > ul:nth-child(1)";
 
       searchResult.hasNextPage =
-        $(navSelector).length > 0
-          ? !$(navSelector).children().last().hasClass("active")
-          : false;
+        $(navSelector).length > 0 ? !$(navSelector).children().last().hasClass("active") : false;
 
       $(".film_list-wrap > div.flw-item").each((i, el) => {
-        const releaseDate = $(el)
-          .find("div.film-detail > div.fd-infor > span:nth-child(1)")
-          .text();
+        const releaseDate = $(el).find("div.film-detail > div.fd-infor > span:nth-child(1)").text();
         searchResult.results.push({
           id: $(el).find("div.film-poster > a").attr("href")?.slice(1)!,
           title: $(el).find("div.film-detail > h2 > a").attr("title")!,
-          url: `${this.baseUrl}${$(el)
-            .find("div.film-poster > a")
-            .attr("href")}`,
+          url: `${this.baseUrl}${$(el).find("div.film-poster > a").attr("href")}`,
           image: $(el).find("div.film-poster > img").attr("data-src"),
           releaseDate: isNaN(parseInt(releaseDate)) ? undefined : releaseDate,
-          seasons: releaseDate.includes("SS")
-            ? parseInt(releaseDate.split("SS")[1])
-            : undefined,
+          seasons: releaseDate.includes("SS") ? parseInt(releaseDate.split("SS")[1]) : undefined,
           type:
-            $(el)
-              .find("div.film-detail > div.fd-infor > span.float-right")
-              .text() === "Movie"
+            $(el).find("div.film-detail > div.fd-infor > span.float-right").text() === "Movie"
               ? TvType.MOVIE
               : TvType.TVSERIES,
         });
@@ -100,10 +86,8 @@ class FlixHQ extends MediaProvier {
               .text()
               .replace("m", "") ?? null,
           type:
-            $(el)
-              .find("div.film-detail > div.fd-infor > span.fdi-type")
-              .text()
-              .toLowerCase() === "tv"
+            $(el).find("div.film-detail > div.fd-infor > span.fdi-type").text().toLowerCase() ===
+            "tv"
               ? TvType.TVSERIES
               : TvType.MOVIE ?? null,
         });
@@ -116,12 +100,9 @@ class FlixHQ extends MediaProvier {
         .replace(")", "")
         .replace(";", "");
       movieInfo.title = $(".heading-name > a:nth-child(1)").text();
-      movieInfo.image = $(
-        ".m_i-d-poster > div:nth-child(1) > img:nth-child(1)"
-      ).attr("src");
+      movieInfo.image = $(".m_i-d-poster > div:nth-child(1) > img:nth-child(1)").attr("src");
       movieInfo.description = $(".description").text();
-      movieInfo.type =
-        movieInfo.id.split("/")[0] === "tv" ? TvType.TVSERIES : TvType.MOVIE;
+      movieInfo.type = movieInfo.id.split("/")[0] === "tv" ? TvType.TVSERIES : TvType.MOVIE;
       movieInfo.releaseDate = $("div.row-line:nth-child(3)")
         .text()
         .replace("Released: ", "")
@@ -136,20 +117,12 @@ class FlixHQ extends MediaProvier {
       movieInfo.tags = $("div.row-line:nth-child(6) > h2")
         .map((i, el) => $(el).text())
         .get();
-      movieInfo.production = $(
-        "div.row-line:nth-child(4) > a:nth-child(2)"
-      ).text();
-      movieInfo.country = $(
-        "div.row-line:nth-child(1) > a:nth-child(2)"
-      ).text();
+      movieInfo.production = $("div.row-line:nth-child(4) > a:nth-child(2)").text();
+      movieInfo.country = $("div.row-line:nth-child(1) > a:nth-child(2)").text();
       movieInfo.duration = $("span.item:nth-child(3)").text();
       movieInfo.rating = parseFloat($("span.item:nth-child(2)").text());
       movieInfo.recommendations = recommendationsArray as any;
-      const ajaxReqUrl = (
-        id: string,
-        type: string,
-        isSeasons: boolean = false
-      ) =>
+      const ajaxReqUrl = (id: string, type: string, isSeasons: boolean = false) =>
         `${this.baseUrl}/ajax/${type === "movie" ? type : `v2/${type}`}/${
           isSeasons ? "seasons" : "episodes"
         }/${id}`;
@@ -172,9 +145,7 @@ class FlixHQ extends MediaProvier {
               const episode = {
                 id: $$$(el).find("a").attr("id")!.split("-")[1],
                 title: $$$(el).find("a").attr("title")!,
-                number: parseInt(
-                  $$$(el).find("a").attr("title")!.split(":")[0].slice(3).trim()
-                ),
+                number: parseInt($$$(el).find("a").attr("title")!.split(":")[0].slice(3).trim()),
                 season: season,
                 url: `${this.baseUrl}/ajax/v2/episode/servers/${
                   $$$(el).find("a").attr("id")!.split("-")[1]
@@ -241,10 +212,7 @@ class FlixHQ extends MediaProvier {
       }
 
       const { data } = await this.client.get(
-        `${this.baseUrl}/ajax/get_link/${servers[i].url
-          .split(".")
-          .slice(-1)
-          .shift()}`
+        `${this.baseUrl}/ajax/get_link/${servers[i].url.split(".").slice(-1).shift()}`
       );
 
       const serverUrl: URL = new URL(data.link);
@@ -255,14 +223,8 @@ class FlixHQ extends MediaProvier {
     }
   }
 
-  override async getMediaServers(
-    episodeId: string,
-    mediaId: string
-  ): Promise<IEpisodeServer[]> {
-    if (
-      !episodeId.startsWith(this.baseUrl + "/ajax") &&
-      !mediaId.includes("movie")
-    )
+  override async getMediaServers(episodeId: string, mediaId: string): Promise<IEpisodeServer[]> {
+    if (!episodeId.startsWith(this.baseUrl + "/ajax") && !mediaId.includes("movie"))
       episodeId = `${this.baseUrl}/ajax/v2/episode/servers/${episodeId}`;
     else episodeId = `${this.baseUrl}/ajax/movie/episodes/${episodeId}`;
 

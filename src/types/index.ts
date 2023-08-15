@@ -3,5 +3,5 @@ import BaseParser from "./base-parser";
 import MediaProvier from "./media-parser";
 import VideoExtractor from "./video-extractor";
 
-export * from "./types";
 export { BaseProvider, BaseParser, MediaProvier, VideoExtractor };
+export * from "./types";

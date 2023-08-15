@@ -109,19 +109,16 @@ class Kickassanime extends MediaProvier {
   override async getMediaSources(
     showId: string,
     episodeId: `ep-${number}-${string}`,
-    server: "duck" | "bird" = "duck"
+    server: "duck" | "bird" | "vidstreaming" = "bird"
   ): Promise<ISource> {
     try {
       const servers = await this.getMediaServers(showId, episodeId);
 
-      const serverItems = servers.filter(
-        (item) => item.name.toLowerCase() === "duck" || item.name.toLowerCase() === "bird"
-      );
-
-      const serverItem =
-        serverItems.find((item) => item.name.toLowerCase() === server) || serverItems[0];
+      const serverItem = servers.find((item) => item.name.toLowerCase() === server) || servers[0];
 
       if (!serverItem) throw new Error("Server not found");
+
+      console.log(serverItem.name);
 
       const name = serverItem.name.toLowerCase();
       const url = new URL(serverItem.url);
@@ -129,7 +126,7 @@ class Kickassanime extends MediaProvier {
       const usesMid = name === "duck";
       const order = JSON.parse(
         await this.MakeFetch(`https://raw.githubusercontent.com/enimax-anime/gogo/main/KAA.json`)
-      )[server];
+      )[name];
 
       const playerHTML = await this.MakeFetch(url.toString(), {
         headers: {
@@ -145,7 +142,7 @@ class Kickassanime extends MediaProvier {
 
       try {
         const res = await fetch(
-          `https://raw.githubusercontent.com/enimax-anime/kaas/${serverItem.name}/key.txt`
+          `https://raw.githubusercontent.com/enimax-anime/kaas/${name}/key.txt`
         );
         if (res.status === 404) {
           throw new Error("Not found");
@@ -167,12 +164,26 @@ class Kickassanime extends MediaProvier {
         TIMESTAMP: Math.floor(Date.now() / 1000),
         MID: url.searchParams.get(usesMid ? "mid" : "id"),
       };
-      console.log(url.searchParams);
 
       for (const item of order) {
         sigArray.push(signatureItems[item]);
       }
+
       const sig = CryptoJS.SHA1(sigArray.join("")).toString(CryptoJS.enc.Hex);
+
+      console.log(
+        `${url.origin}${signatureItems.ROUTE}?${!usesMid ? "id" : "mid"}=${signatureItems.MID}${
+          isBirb ? "" : "&e=" + signatureItems.TIMESTAMP
+        }&s=${sig}`,
+        {
+          headers: {
+            referer: `${url.origin}${signatureItems.ROUTE.replace("source.php", "player.php")}?${
+              !usesMid ? "id" : "mid"
+            }=${signatureItems.MID}`,
+            "User-Agent": USER_AGENT,
+          },
+        }
+      );
 
       const result = JSON.parse(
         await this.MakeFetch(
@@ -184,6 +195,7 @@ class Kickassanime extends MediaProvier {
               referer: `${url.origin}${signatureItems.ROUTE.replace("source.php", "player.php")}?${
                 !usesMid ? "id" : "mid"
               }=${signatureItems.MID}`,
+              "User-Agent": USER_AGENT,
             },
           }
         )
@@ -346,7 +358,6 @@ class Kickassanime extends MediaProvier {
       fetch(url, options)
         .then((response) => response.text())
         .then((response) => {
-          console.log("resp", response);
           resolve(response);
         })
         .catch(function (err) {
