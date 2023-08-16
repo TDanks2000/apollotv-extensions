@@ -1,0 +1,18 @@
+{
+    "type": "anime",
+    "name": "gogoAnime",
+    "version": "0.0.1",
+    "image": "https://play-lh.googleusercontent.com/MaGEiAEhNHAJXcXKzqTNgxqRmhuKB1rCUgb15UrN_mWUNRnLpO5T1qja64oRasO7mn0",
+    "author": {
+        "name": "Tommy",
+        "image": null,
+        "link": null
+    },
+    "code": {
+        "main": "index.js",
+        "utils": {
+            "mainURL": "https://gogoanimes.fi",
+            "apiURL": "https://ajax.gogo-load.com/ajax"
+        }
+    }
+}

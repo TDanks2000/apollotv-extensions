@@ -1,0 +1,18 @@
+{
+    "type": "anime",
+    "name": "kickassanime",
+    "version": "0.0.2",
+    "image": "https://pbs.twimg.com/profile_images/1668059170602643458/6GLXKPl6_400x400.jpg",
+    "author": {
+        "name": "Tommy",
+        "image": null,
+        "link": null
+    },
+    "code": {
+        "main": "index.js",
+        "utils": {
+            "mainURL": "https://kickassanime.am",
+            "apiURL": "https://kickassanime.am/api"
+        }
+    }
+}
