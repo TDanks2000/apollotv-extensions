@@ -124,11 +124,12 @@ class Kickassanime extends MediaProvier {
       const url = new URL(serverItem.url);
       const isBirb = name === "bird";
       const usesMid = name === "duck";
-      const order = JSON.parse(
-        await this.MakeFetch(`https://raw.githubusercontent.com/enimax-anime/gogo/main/KAA.json`)
-      )[name];
+      let { data: order } = await this.client.get(
+        "https://raw.githubusercontent.com/enimax-anime/gogo/main/KAA.json"
+      );
+      order = order[name];
 
-      const playerHTML = await this.MakeFetch(url.toString(), {
+      const { data: playerHTML } = await this.client.get(url.toString(), {
         headers: {
           "User-Agent": USER_AGENT,
         },
@@ -141,18 +142,19 @@ class Kickassanime extends MediaProvier {
       let key = "";
 
       try {
-        const res = await fetch(
+        const res = await this.client.get(
           `https://raw.githubusercontent.com/enimax-anime/kaas/${name}/key.txt`
         );
         if (res.status === 404) {
           throw new Error("Not found");
         } else {
-          key = await res.text();
+          key = await res.data;
         }
       } catch (err) {
-        key = await this.MakeFetch(
+        const { data: duckKey } = await this.client.get(
           `https://raw.githubusercontent.com/enimax-anime/kaas/duck/key.txt`
         );
+        key = duckKey;
       }
 
       const signatureItems: any = {
@@ -171,7 +173,7 @@ class Kickassanime extends MediaProvier {
 
       const sig = CryptoJS.SHA1(sigArray.join("")).toString(CryptoJS.enc.Hex);
 
-      console.log(
+      let { data: result } = await this.client.get(
         `${url.origin}${signatureItems.ROUTE}?${!usesMid ? "id" : "mid"}=${signatureItems.MID}${
           isBirb ? "" : "&e=" + signatureItems.TIMESTAMP
         }&s=${sig}`,
@@ -184,22 +186,7 @@ class Kickassanime extends MediaProvier {
           },
         }
       );
-
-      const result = JSON.parse(
-        await this.MakeFetch(
-          `${url.origin}${signatureItems.ROUTE}?${!usesMid ? "id" : "mid"}=${signatureItems.MID}${
-            isBirb ? "" : "&e=" + signatureItems.TIMESTAMP
-          }&s=${sig}`,
-          {
-            headers: {
-              referer: `${url.origin}${signatureItems.ROUTE.replace("source.php", "player.php")}?${
-                !usesMid ? "id" : "mid"
-              }=${signatureItems.MID}`,
-              "User-Agent": USER_AGENT,
-            },
-          }
-        )
-      ).data;
+      result = result.data;
 
       const finalResult = JSON.parse(
         CryptoJS.AES.decrypt(result.split(":")[0], CryptoJS.enc.Utf8.parse(signatureItems.KEY), {
@@ -352,29 +339,7 @@ class Kickassanime extends MediaProvier {
       duration: episode.duration_ms,
     };
   }
-
-  private async MakeFetch(url: string, options = {}): Promise<any> {
-    return new Promise(function (resolve, reject) {
-      fetch(url, options)
-        .then((response) => response.text())
-        .then((response) => {
-          resolve(response);
-        })
-        .catch(function (err) {
-          reject(new Error(`${err.message}: ${url}`));
-        });
-    });
-  }
 }
-
-(async () => {
-  const kaa = new Kickassanime();
-
-  // const info = await kaa.getMediaInfo("odd-taxi-8b25");
-  const sources = await kaa.getMediaSources("oshi-no-ko-38b7", "ep-1-a9fa61");
-
-  console.log(sources);
-})();
 
 export default Kickassanime;
 
