@@ -80,7 +80,6 @@ export interface IMediaInfo extends IMediaResult {
   trailer?: Trailer;
 
   episodes?: IMediaEpisode[];
-  chapters?: IMangaChapter[];
 
   startDate?: FuzzyDate;
   endDate?: FuzzyDate;
@@ -97,15 +96,6 @@ export interface IMediaEpisode {
   description?: string;
   isFiller?: boolean;
   image?: string;
-  releaseDate?: string;
-  [x: string]: unknown; // other fields
-}
-
-export interface IMangaChapter {
-  id: string;
-  title: string;
-  volume?: number;
-  pages?: number;
   releaseDate?: string;
   [x: string]: unknown; // other fields
 }
@@ -278,4 +268,40 @@ export interface ProxyConfig {
    * The proxy rotation interval in milliseconds. (default: 5000)
    */
   rotateInterval?: number;
+}
+
+export interface IReadableResult {
+  id: string;
+  title: string | [lang: string][] | ITitle;
+  altTitles?: string | string[] | [lang: string][];
+  image?: string;
+  description?: string | [lang: string][] | { [lang: string]: string };
+  status?: MediaStatus;
+  releaseDate?: number | string;
+  [x: string]: unknown; // other fields
+}
+
+export interface IReadableChapter {
+  id: string;
+  title: string;
+  volume?: number;
+  pages?: number;
+  releaseDate?: string;
+  [x: string]: unknown; // other fields
+}
+
+export interface IReadableInfo extends IReadableResult {
+  malId?: number | string;
+  authors?: string[];
+  genres?: string[];
+  links?: string[];
+  characters?: any[];
+  recommendations?: IReadableResult[];
+  chapters?: IReadableChapter[];
+}
+
+export interface IReadableChapterPage {
+  img: string;
+  page: number;
+  [x: string]: unknown; // other fields
 }

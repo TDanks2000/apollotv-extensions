@@ -1,0 +1,17 @@
+{
+  "type": "manga",
+  "name": "MangaPill",
+  "version": "0.0.1",
+  "image": "https://mangapill.com/static/favicon/apple-touch-icon.png",
+  "author": {
+    "name": "Tommy",
+    "image": null,
+    "link": null
+  },
+  "code": {
+    "main": "index.js",
+    "utils": {
+      "mainURL": "https://mangapill.com"
+    }
+  }
+}
