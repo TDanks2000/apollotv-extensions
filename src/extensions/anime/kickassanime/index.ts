@@ -109,8 +109,8 @@ class Kickassanime extends MediaProvier {
   }
 
   override async getMediaSources(
-    showId: string,
     episodeId: `ep-${number}-${string}`,
+    showId: string,
     server: "duck" | "bird" | "vidstreaming" = "bird"
   ): Promise<ISource> {
     try {

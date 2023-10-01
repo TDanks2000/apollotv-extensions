@@ -1,4 +1,4 @@
-import { Anilist as AnilistClass } from "@tdanks2000/anilist-wrapper";
+import axios from "axios";
 import {
   AnimappedRes,
   Genres,
@@ -13,7 +13,6 @@ import {
   SubOrDub,
 } from "../../types";
 import GogoAnime from "../../extensions/anime/gogoanime";
-import axios from "axios";
 import { AdvancedSearch, MalsyncReturn } from "./types";
 import { compareTwoStrings } from "../../utils";
 import { anilistAdvancedQuery, anilistMediaDetailQuery, anilistSearchQuery } from "./queries";
@@ -331,14 +330,14 @@ class Anilist {
       }
       animeInfo.releaseDate = data.data?.Media?.startDate?.year ?? data.year;
       animeInfo.startDate = {
-        year: data.data.Media.startDate.year,
-        month: data.data.Media.startDate.month,
-        day: data.data.Media.startDate.day,
+        year: data?.data?.Media?.startDate?.year,
+        month: data?.data?.Media?.startDate?.month,
+        day: data.data?.Media?.startDate?.day,
       };
       animeInfo.endDate = {
-        year: data.data.Media.endDate.year,
-        month: data.data.Media.endDate.month,
-        day: data.data.Media.endDate.day,
+        year: data?.data?.Media?.endDate?.year,
+        month: data?.data?.Media?.endDate?.month,
+        day: data?.data?.Media?.endDate?.day,
       };
       if (data.data.Media.nextAiringEpisode?.airingAt)
         animeInfo.nextAiringEpisode = {
@@ -457,6 +456,7 @@ class Anilist {
 
       const mappingId = await this.getMappingId(animeInfo.malId!?.toString(), dub);
       const episodes = await this.getEpisodes(mappingId!);
+      animeInfo.providerId = mappingId;
       animeInfo.episodes = episodes;
 
       return animeInfo;
@@ -538,6 +538,8 @@ class Anilist {
     const findMappingSite = Object.entries(mappings).find(([key, v]) => {
       return key === this.provider.metaData.name.toLowerCase();
     });
+
+    if (!findMappingSite) return undefined;
 
     const findMapping = Object.entries(findMappingSite![1]).find(([key, v]) => {
       if (this.provider instanceof GogoAnime) {
