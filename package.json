@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tdanks2000/anilist-wrapper": "^1.0.18",
     "axios": "0.27.2",
     "cheerio": "1.0.0-rc.12",
     "crypto-js": "^4.1.1"

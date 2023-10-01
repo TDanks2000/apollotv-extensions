@@ -305,3 +305,54 @@ export interface IReadableChapterPage {
   page: number;
   [x: string]: unknown; // other fields
 }
+
+export interface MetaData {
+  type: string;
+  name: string;
+  version: string;
+  image: string;
+  author: Author;
+  code: Code;
+}
+
+export interface Author {
+  name: string;
+  image?: string | null;
+  link?: string | null;
+}
+
+export interface Code {
+  main: string;
+  utils: Utils;
+}
+
+export interface Utils {
+  mainURL: string;
+  apiURL?: string;
+}
+
+export interface AnimeMapping {
+  id: string;
+  title: string;
+  module: string;
+}
+
+export interface AnimeMappings {
+  [key: string]: AnimeMapping;
+}
+
+export interface AnimappedRes {
+  found: boolean;
+  id: string;
+  anilist_id: string;
+  mal_id: string;
+  title: string;
+  year: string;
+  mappings: {
+    aniwatch?: AnimeMappings;
+    gogoanime?: AnimeMappings;
+    kickassanime?: AnimeMappings;
+  };
+  updated_at: string;
+  created_at: string;
+}

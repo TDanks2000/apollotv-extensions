@@ -5,11 +5,13 @@ import {
   ISearch,
   ISource,
   MediaProvier,
+  MetaData,
 } from "../../types";
 
 import * as metadata from "./extension.json";
 
 class Template extends MediaProvier {
+  public metaData: MetaData = metadata;
   protected baseUrl: string = metadata.code.utils.mainURL;
   protected apiURL: string = metadata.code.utils.apiURL;
 

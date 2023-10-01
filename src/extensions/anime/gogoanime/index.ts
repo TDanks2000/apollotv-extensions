@@ -1,4 +1,10 @@
-import { MediaFormat, MediaStatus, StreamingServers, SubOrDub } from "../../../types/types";
+import {
+  MediaFormat,
+  MediaStatus,
+  MetaData,
+  StreamingServers,
+  SubOrDub,
+} from "../../../types/types";
 import { load } from "cheerio";
 import {
   IEpisodeServer,
@@ -14,6 +20,7 @@ import { GogoCDN, StreamSB } from "../../../extractors";
 import { USER_AGENT } from "../../../utils";
 
 class GogoAnime extends MediaProvier {
+  public metaData: MetaData = metadata;
   protected baseUrl: string = metadata.code.utils.mainURL;
   protected ajaxUrl: string = metadata.code.utils.apiURL;
 
@@ -194,9 +201,9 @@ class GogoAnime extends MediaProvier {
           break;
         case StreamingServers.VidStreaming:
           serverUrl = new URL(
-            `https:${$("div.anime_video_body > div.anime_muti_link > ul > li.vidcdn > a")
-              .attr("data-video")
-              ?.replace(".pro", ".net")}`
+            `${$("div.anime_video_body > div.anime_muti_link > ul > li.vidcdn > a").attr(
+              "data-video"
+            )}`
           );
           break;
         case StreamingServers.StreamSB:

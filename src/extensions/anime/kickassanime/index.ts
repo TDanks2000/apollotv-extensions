@@ -7,6 +7,7 @@ import {
   ISearch,
   ISource,
   MediaProvier,
+  MetaData,
   SubOrDub,
 } from "../../../types";
 import { USER_AGENT } from "../../../utils";
@@ -17,6 +18,7 @@ import * as metadata from "./extension.json";
 import { Episode, EpisodeInfo, EpisodeResult, Image, Info, Search } from "./types";
 
 class Kickassanime extends MediaProvier {
+  public metaData: MetaData = metadata;
   protected baseUrl = metadata.code.utils.mainURL;
   protected apiURL = metadata.code.utils.apiURL;
 

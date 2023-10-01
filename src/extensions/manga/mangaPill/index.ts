@@ -7,11 +7,13 @@ import {
   IReadableResult,
   IReadableChapterPage,
   IReadableChapter,
+  MetaData,
 } from "../../../types";
 
 import * as metadata from "./extension.json";
 
 class MangaPill extends ReadableParser {
+  public metaData: MetaData = metadata;
   protected override baseUrl = metadata.code.utils.mainURL;
 
   async search(query: string): Promise<ISearch<IReadableResult>> {

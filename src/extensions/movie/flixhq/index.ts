@@ -14,6 +14,7 @@ import metadata from "./extension.json";
 import { MixDrop, VidCloud } from "../../../extractors";
 
 class FlixHQ extends MediaProvier {
+  public metaData: MetaData = metadata;
   protected baseUrl: string = metadata.code.utils.mainURL;
 
   override async search(query: string, page: number = 1): Promise<ISearch<IMediaResult>> {
