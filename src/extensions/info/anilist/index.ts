@@ -557,20 +557,26 @@ class Anilist {
 
       const mappings = animapped_data?.mappings;
 
+      if (!mappings) return undefined;
+
       const findMappingSite = Object.entries(mappings).find(([key, v]) => {
         return key === this.provider.metaData.name.toLowerCase();
       });
 
-      if (!findMappingSite) return undefined;
+      if (!findMappingSite || findMappingSite === null) return undefined;
 
-      const findMapping = Object.entries(findMappingSite![1]).find(([key, v]) => {
-        if (this.provider instanceof GogoAnime) {
-          return dub ? key.toLowerCase().includes("dub") : !key.toLowerCase().includes("dub");
-        } else return true;
-      });
+      let findMapping;
+      try {
+        findMapping = Object.entries(findMappingSite![1]).find(([key, v]) => {
+          if (this.provider instanceof GogoAnime) {
+            return dub ? key.toLowerCase().includes("dub") : !key.toLowerCase().includes("dub");
+          } else return true;
+        });
+      } catch (error) {
+        return undefined;
+      }
 
-      if (findMapping?.[1]) return findMapping?.[1].id;
-      return undefined;
+      return findMapping?.[1]?.id || undefined;
     } catch (error) {
       console.error(error);
       throw new Error(`Anilist Mapping Error: ${(error as Error).message}`);
