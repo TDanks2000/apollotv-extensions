@@ -11,10 +11,10 @@ import {
   MediaProvier,
   MediaStatus,
   SubOrDub,
-} from "../../types";
-import GogoAnime from "../../extensions/anime/gogoanime";
+} from "../../../types";
+import GogoAnime from "../../anime/gogoanime";
 import { AdvancedSearch, MalsyncReturn } from "./types";
-import { compareTwoStrings } from "../../utils";
+import { compareTwoStrings } from "../../../utils";
 import { anilistAdvancedQuery, anilistMediaDetailQuery, anilistSearchQuery } from "./queries";
 
 /**
@@ -28,8 +28,11 @@ class Anilist {
   private readonly animapped_api_url = "https://animapped.streamable.moe/api";
   provider: MediaProvier;
 
-  constructor(provider?: MediaProvier) {
+  private animapped_api_key?: string;
+
+  constructor(provider?: MediaProvier, animapped_api_key?: string) {
     this.provider = provider || new GogoAnime();
+    this.animapped_api_key = animapped_api_key ?? "";
   }
 
   async search(
@@ -529,8 +532,10 @@ class Anilist {
 
     if (possibleSource) return possibleSource.url.split("/").pop()!;
 
+    if (!this.animapped_api_key) return undefined;
+
     const { data: animapped_data } = await axios.get<AnimappedRes>(
-      `${this.animapped_api_url}/mal/${malId}`
+      `${this.animapped_api_url}/mal/${malId}?api_key=${this.animapped_api_key}`
     );
 
     const mappings = animapped_data?.mappings;

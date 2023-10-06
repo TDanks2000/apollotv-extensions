@@ -1,3 +1,3 @@
 import Anilist from "./anilist";
 
-export { Anilist };
+export default { Anilist };

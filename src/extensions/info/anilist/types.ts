@@ -1,4 +1,4 @@
-import { Genres } from "../../types";
+import { Genres } from "../../../types";
 
 export interface MalsyncReturn {
   id: number;
