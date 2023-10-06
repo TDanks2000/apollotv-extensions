@@ -457,6 +457,7 @@ class Anilist {
         });
     }
     getMappingId(malId, dub = false) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             if (!malId)
                 return undefined;
@@ -501,21 +502,27 @@ class Anilist {
                     return undefined;
                 const { data: animapped_data } = yield axios_1.default.get(`${this.animapped_api_url}/mal/${malId}?api_key=${this.animapped_api_key}`);
                 const mappings = animapped_data === null || animapped_data === void 0 ? void 0 : animapped_data.mappings;
+                if (!mappings)
+                    return undefined;
                 const findMappingSite = Object.entries(mappings).find(([key, v]) => {
                     return key === this.provider.metaData.name.toLowerCase();
                 });
-                if (!findMappingSite)
+                if (!findMappingSite || findMappingSite === null)
                     return undefined;
-                const findMapping = Object.entries(findMappingSite[1]).find(([key, v]) => {
-                    if (this.provider instanceof gogoanime_1.default) {
-                        return dub ? key.toLowerCase().includes("dub") : !key.toLowerCase().includes("dub");
-                    }
-                    else
-                        return true;
-                });
-                if (findMapping === null || findMapping === void 0 ? void 0 : findMapping[1])
-                    return findMapping === null || findMapping === void 0 ? void 0 : findMapping[1].id;
-                return undefined;
+                let findMapping;
+                try {
+                    findMapping = Object.entries(findMappingSite[1]).find(([key, v]) => {
+                        if (this.provider instanceof gogoanime_1.default) {
+                            return dub ? key.toLowerCase().includes("dub") : !key.toLowerCase().includes("dub");
+                        }
+                        else
+                            return true;
+                    });
+                }
+                catch (error) {
+                    return undefined;
+                }
+                return ((_a = findMapping === null || findMapping === void 0 ? void 0 : findMapping[1]) === null || _a === void 0 ? void 0 : _a.id) || undefined;
             }
             catch (error) {
                 console.error(error);
