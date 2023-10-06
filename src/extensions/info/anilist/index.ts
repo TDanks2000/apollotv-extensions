@@ -503,51 +503,51 @@ class Anilist {
     if (!malId) return undefined;
 
     try {
-      const { data } = await axios.get<MalsyncReturn>(
-        `${this.mal_sync_api_url}/mal/anime/${malId}`
-      );
+      // const { data } = await axios.get<MalsyncReturn>(
+      //   `${this.mal_sync_api_url}/mal/anime/${malId}`
+      // );
 
-      // find site in sites
-      if (!data) return undefined;
+      // // find site in sites
+      // if (!data) return undefined;
 
-      const sitesT = data.Sites;
+      // const sitesT = data.Sites;
 
-      let sites = Object.values(sitesT).map((v, i) => {
-        const obj = [...Object.values(Object.values(sitesT)[i])];
-        const pages: any = obj.map((v) => ({
-          page: v.page,
-          url: v.url,
-          title: v.title,
-        }));
-        return pages;
-      }) as {
-        page: string;
-        url: string;
-        title: string;
-      }[];
+      // let sites = Object.values(sitesT).map((v, i) => {
+      //   const obj = [...Object.values(Object.values(sitesT)[i])];
+      //   const pages: any = obj.map((v) => ({
+      //     page: v.page,
+      //     url: v.url,
+      //     title: v.title,
+      //   }));
+      //   return pages;
+      // }) as {
+      //   page: string;
+      //   url: string;
+      //   title: string;
+      // }[];
 
-      sites = sites.flat();
+      // sites = sites.flat();
 
-      sites.sort((a, b) => {
-        const targetTitle = data.title.toLowerCase();
+      // sites.sort((a, b) => {
+      //   const targetTitle = data.title.toLowerCase();
 
-        const firstRating = compareTwoStrings(targetTitle, a.title.toLowerCase());
-        const secondRating = compareTwoStrings(targetTitle, b.title.toLowerCase());
+      //   const firstRating = compareTwoStrings(targetTitle, a.title.toLowerCase());
+      //   const secondRating = compareTwoStrings(targetTitle, b.title.toLowerCase());
 
-        // Sort in descending order
-        return secondRating - firstRating;
-      });
+      //   // Sort in descending order
+      //   return secondRating - firstRating;
+      // });
 
-      const possibleSource = sites.find((s) => {
-        if (s.page.toLowerCase() !== this.provider.metaData.name.toLowerCase()) return false;
-        if (this.provider instanceof GogoAnime) {
-          return dub
-            ? s.title.toLowerCase().includes("dub")
-            : !s.title.toLowerCase().includes("dub");
-        } else return true;
-      });
+      // const possibleSource = sites.find((s) => {
+      //   if (s.page.toLowerCase() !== this.provider.metaData.name.toLowerCase()) return false;
+      //   if (this.provider instanceof GogoAnime) {
+      //     return dub
+      //       ? s.title.toLowerCase().includes("dub")
+      //       : !s.title.toLowerCase().includes("dub");
+      //   } else return true;
+      // });
 
-      if (possibleSource) return possibleSource.url.split("/").pop()!;
+      // if (possibleSource) return possibleSource.url.split("/").pop()!;
 
       if (!this.animapped_api_key) return undefined;
 
