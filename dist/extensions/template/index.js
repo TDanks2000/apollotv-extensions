@@ -28,6 +28,7 @@ const metadata = __importStar(require("./extension.json"));
 class Template extends types_1.MediaProvier {
     constructor() {
         super(...arguments);
+        this.metaData = metadata;
         this.baseUrl = metadata.code.utils.mainURL;
         this.apiURL = metadata.code.utils.apiURL;
     }

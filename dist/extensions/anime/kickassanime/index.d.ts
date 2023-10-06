@@ -1,12 +1,13 @@
-import { IEpisodeServer, IMediaInfo, IMediaResult, ISearch, ISource, MediaProvier, SubOrDub } from "../../../types";
+import { IEpisodeServer, IMediaInfo, IMediaResult, ISearch, ISource, MediaProvier, MetaData, SubOrDub } from "../../../types";
 declare class Kickassanime extends MediaProvier {
+    metaData: MetaData;
     protected baseUrl: string;
     protected apiURL: string;
     protected isDubAvailableSeparately: boolean;
     private headers;
     search(query: string, page?: number): Promise<ISearch<IMediaResult>>;
     getMediaInfo(id: string, subOrDub?: SubOrDub): Promise<IMediaInfo>;
-    getMediaSources(showId: string, episodeId: `ep-${number}-${string}`, server?: "duck" | "bird" | "vidstreaming"): Promise<ISource>;
+    getMediaSources(episodeId: `ep-${number}-${string}`, showId: string, server?: "duck" | "bird" | "vidstreaming"): Promise<ISource>;
     getMediaServers(showId: string, episodeId: `ep-${number}-${string}`): Promise<IEpisodeServer[]>;
     private getImageUrl;
     private loadAllEps;

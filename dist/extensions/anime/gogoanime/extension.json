@@ -11,7 +11,7 @@
     "code": {
         "main": "index.js",
         "utils": {
-            "mainURL": "https://gogoanimes.fi",
+            "mainURL": "https://gogoanimehd.io",
             "apiURL": "https://ajax.gogo-load.com/ajax"
         }
     }

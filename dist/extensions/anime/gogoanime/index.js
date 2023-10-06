@@ -41,6 +41,7 @@ const utils_1 = require("../../../utils");
 class GogoAnime extends types_2.MediaProvier {
     constructor() {
         super(...arguments);
+        this.metaData = metadata;
         this.baseUrl = metadata.code.utils.mainURL;
         this.ajaxUrl = metadata.code.utils.apiURL;
     }
@@ -159,7 +160,6 @@ class GogoAnime extends types_2.MediaProvier {
         });
     }
     getMediaSources(episodeId, server = types_1.StreamingServers.VidStreaming) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             if (episodeId.startsWith("http")) {
                 const serverUrl = new URL(episodeId);
@@ -197,8 +197,7 @@ class GogoAnime extends types_2.MediaProvier {
                         serverUrl = new URL(`https:${$("#load_anime > div > div > iframe").attr("src")}`);
                         break;
                     case types_1.StreamingServers.VidStreaming:
-                        serverUrl = new URL(`https:${(_a = $("div.anime_video_body > div.anime_muti_link > ul > li.vidcdn > a")
-                            .attr("data-video")) === null || _a === void 0 ? void 0 : _a.replace(".pro", ".net")}`);
+                        serverUrl = new URL(`${$("div.anime_video_body > div.anime_muti_link > ul > li.vidcdn > a").attr("data-video")}`);
                         break;
                     case types_1.StreamingServers.StreamSB:
                         serverUrl = new URL($("div.anime_video_body > div.anime_muti_link > ul > li.streamsb > a").attr("data-video"));

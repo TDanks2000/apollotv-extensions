@@ -98,10 +98,7 @@ class GogoCDN extends types_1.VideoExtractor {
                         .find((line) => line.includes("URI="))
                         .split("URI=")[1]
                         .replace(/"/g, "");
-                    const quality = video
-                        .split("RESOLUTION=")[1]
-                        .split(",")[0]
-                        .split("x")[1];
+                    const quality = video.split("RESOLUTION=")[1].split(",")[0].split("x")[1];
                     this.sources.push({
                         url: url,
                         quality: `${quality}p`,
@@ -119,7 +116,7 @@ class GogoCDN extends types_1.VideoExtractor {
             const encryptedKey = crypto_js_1.default.AES.encrypt(id, this.keys.key, {
                 iv: this.keys.iv,
             });
-            const scriptValue = $("script[data-name='episode']").data().value;
+            const scriptValue = $("script[data-name='episode']").attr("data-value");
             const decryptedToken = crypto_js_1.default.AES.decrypt(scriptValue, this.keys.key, {
                 iv: this.keys.iv,
             }).toString(crypto_js_1.default.enc.Utf8);

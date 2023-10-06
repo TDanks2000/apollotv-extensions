@@ -17,13 +17,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VideoExtractor = exports.MediaProvier = exports.BaseParser = exports.BaseProvider = void 0;
+exports.ReadableParser = exports.VideoExtractor = exports.MediaProvier = exports.BaseParser = exports.BaseProvider = void 0;
 const base_provider_1 = __importDefault(require("./base-provider"));
 exports.BaseProvider = base_provider_1.default;
 const base_parser_1 = __importDefault(require("./base-parser"));
 exports.BaseParser = base_parser_1.default;
 const media_parser_1 = __importDefault(require("./media-parser"));
 exports.MediaProvier = media_parser_1.default;
+const readable_parser_1 = __importDefault(require("./readable-parser"));
+exports.ReadableParser = readable_parser_1.default;
 const video_extractor_1 = __importDefault(require("./video-extractor"));
 exports.VideoExtractor = video_extractor_1.default;
 __exportStar(require("./types"), exports);

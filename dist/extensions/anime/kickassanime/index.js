@@ -49,6 +49,7 @@ const metadata = __importStar(require("./extension.json"));
 class Kickassanime extends types_1.MediaProvier {
     constructor() {
         super(...arguments);
+        this.metaData = metadata;
         this.baseUrl = metadata.code.utils.mainURL;
         this.apiURL = metadata.code.utils.apiURL;
         this.isDubAvailableSeparately = true;
@@ -139,7 +140,7 @@ class Kickassanime extends types_1.MediaProvier {
             return animeInfo;
         });
     }
-    getMediaSources(showId, episodeId, server = "bird") {
+    getMediaSources(episodeId, showId, server = "bird") {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
         return __awaiter(this, void 0, void 0, function* () {
             try {

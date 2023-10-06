@@ -73,7 +73,6 @@ export interface IMediaInfo extends IMediaResult {
     cover?: string;
     trailer?: Trailer;
     episodes?: IMediaEpisode[];
-    chapters?: IMangaChapter[];
     startDate?: FuzzyDate;
     endDate?: FuzzyDate;
     recommendations?: IMediaResult[];
@@ -88,14 +87,6 @@ export interface IMediaEpisode {
     description?: string;
     isFiller?: boolean;
     image?: string;
-    releaseDate?: string;
-    [x: string]: unknown;
-}
-export interface IMangaChapter {
-    id: string;
-    title: string;
-    volume?: number;
-    pages?: number;
     releaseDate?: string;
     [x: string]: unknown;
 }
@@ -255,4 +246,82 @@ export interface ProxyConfig {
      * The proxy rotation interval in milliseconds. (default: 5000)
      */
     rotateInterval?: number;
+}
+export interface IReadableResult {
+    id: string;
+    title: string | [lang: string][] | ITitle;
+    altTitles?: string | string[] | [lang: string][];
+    image?: string;
+    description?: string | [lang: string][] | {
+        [lang: string]: string;
+    };
+    status?: MediaStatus;
+    releaseDate?: number | string;
+    [x: string]: unknown;
+}
+export interface IReadableChapter {
+    id: string;
+    title: string;
+    volume?: number;
+    pages?: number;
+    releaseDate?: string;
+    [x: string]: unknown;
+}
+export interface IReadableInfo extends IReadableResult {
+    malId?: number | string;
+    authors?: string[];
+    genres?: string[];
+    links?: string[];
+    characters?: any[];
+    recommendations?: IReadableResult[];
+    chapters?: IReadableChapter[];
+}
+export interface IReadableChapterPage {
+    img: string;
+    page: number;
+    [x: string]: unknown;
+}
+export interface MetaData {
+    type: string;
+    name: string;
+    version: string;
+    image: string;
+    author: Author;
+    code: Code;
+}
+export interface Author {
+    name: string;
+    image?: string | null;
+    link?: string | null;
+}
+export interface Code {
+    main: string;
+    utils: Utils;
+}
+export interface Utils {
+    mainURL: string;
+    apiURL?: string | null;
+}
+export interface AnimeMapping {
+    id: string;
+    title: string;
+    module: string;
+}
+export interface AnimeMappings {
+    [key: string]: AnimeMapping;
+}
+export interface AnimappedRes {
+    found: boolean;
+    id: string;
+    anilist_id: string;
+    mal_id: string;
+    title: string;
+    year: string;
+    mappings: {
+        aniwatch?: AnimeMappings;
+        gogoanime?: AnimeMappings;
+        kickassanime?: AnimeMappings;
+    };
+    updated_at: string;
+    created_at: string;
 }

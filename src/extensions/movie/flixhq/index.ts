@@ -1,4 +1,4 @@
-import { StreamingServers } from "../../../types";
+import { MetaData, StreamingServers } from "../../../types";
 import { load } from "cheerio";
 import {
   IEpisodeServer,

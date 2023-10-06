@@ -1,5 +1,6 @@
-import { IEpisodeServer, IMediaInfo, IMediaResult, ISearch, ISource, MediaProvier } from "../../types";
+import { IEpisodeServer, IMediaInfo, IMediaResult, ISearch, ISource, MediaProvier, MetaData } from "../../types";
 declare class Template extends MediaProvier {
+    metaData: MetaData;
     protected baseUrl: string;
     protected apiURL: string;
     search(query: string, ...args: any[]): Promise<ISearch<IMediaResult>>;

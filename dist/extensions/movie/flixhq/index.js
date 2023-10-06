@@ -20,6 +20,7 @@ const extractors_1 = require("../../../extractors");
 class FlixHQ extends types_2.MediaProvier {
     constructor() {
         super(...arguments);
+        this.metaData = extension_json_1.default;
         this.baseUrl = extension_json_1.default.code.utils.mainURL;
     }
     search(query, page = 1) {
