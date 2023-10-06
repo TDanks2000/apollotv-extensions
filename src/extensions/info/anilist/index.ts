@@ -280,13 +280,23 @@ class Anilist {
         validateStatus: () => true,
       });
 
+      if (status == 404)
+        throw new Error(
+          "Media not found. Perhaps the id is invalid or the anime is not in anilist"
+        );
+      if (status == 429)
+        throw new Error("You have been ratelimited by anilist. Please try again later");
+      if (status >= 500) throw new Error("Anilist seems to be down. Please try again later");
+      if (status != 200 && status < 429)
+        throw Error("Media not found. If the problem persists, please contact the developer");
+
       animeInfo.malId = data.data?.Media?.idMal ?? data?.mappings?.mal;
-      animeInfo.title = data.data.Media
+      animeInfo.title = data?.data?.Media
         ? {
-            romaji: data.data.Media.title.romaji,
-            english: data.data.Media.title.english,
-            native: data.data.Media.title.native,
-            userPreferred: data.data.Media.title.userPreferred,
+            romaji: data.data?.Media.title.romaji,
+            english: data.data?.Media.title.english,
+            native: data.data?.Media.title.native,
+            userPreferred: data.data?.Media.title.userPreferred,
           }
         : (data.data.title as ITitle);
 
@@ -297,17 +307,17 @@ class Anilist {
 
       if (data.data?.Media?.trailer?.id) {
         animeInfo.trailer = {
-          id: data.data.Media.trailer.id,
-          site: data.data.Media.trailer?.site,
-          thumbnail: data.data.Media.trailer?.thumbnail,
+          id: data.data?.Media.trailer.id,
+          site: data.data?.Media.trailer?.site,
+          thumbnail: data.data?.Media.trailer?.thumbnail,
         };
       }
       animeInfo.image =
         data.data?.Media?.coverImage?.extraLarge ??
         data.data?.Media?.coverImage?.large ??
         data.data?.Media?.coverImage?.medium ??
-        data.coverImage ??
-        data.bannerImage;
+        data?.coverImage ??
+        data?.bannerImage;
 
       animeInfo.popularity = data.data?.Media?.popularity ?? data?.popularity;
       animeInfo.color = data.data?.Media?.coverImage?.color ?? data?.color;
@@ -342,25 +352,25 @@ class Anilist {
         month: data?.data?.Media?.endDate?.month,
         day: data?.data?.Media?.endDate?.day,
       };
-      if (data.data.Media.nextAiringEpisode?.airingAt)
+      if (data.data?.Media.nextAiringEpisode?.airingAt)
         animeInfo.nextAiringEpisode = {
-          airingTime: data.data.Media.nextAiringEpisode?.airingAt,
-          timeUntilAiring: data.data.Media.nextAiringEpisode?.timeUntilAiring,
-          episode: data.data.Media.nextAiringEpisode?.episode,
+          airingTime: data.data?.Media.nextAiringEpisode?.airingAt,
+          timeUntilAiring: data.data?.Media.nextAiringEpisode?.timeUntilAiring,
+          episode: data.data?.Media.nextAiringEpisode?.episode,
         };
       animeInfo.totalEpisodes =
-        data.data.Media?.episodes ?? data.data.Media.nextAiringEpisode?.episode - 1;
-      animeInfo.currentEpisode = data.data.Media?.nextAiringEpisode?.episode
-        ? data.data.Media.nextAiringEpisode?.episode - 1
-        : data.data.Media?.episodes;
-      animeInfo.rating = data.data.Media.averageScore;
-      animeInfo.duration = data.data.Media.duration;
-      animeInfo.genres = data.data.Media.genres;
-      animeInfo.season = data.data.Media.season;
-      animeInfo.studios = data.data.Media.studios.edges.map((item: any) => item.node.name);
+        data.data?.Media?.episodes ?? data.data?.Media.nextAiringEpisode?.episode - 1;
+      animeInfo.currentEpisode = data.data?.Media?.nextAiringEpisode?.episode
+        ? data.data?.Media.nextAiringEpisode?.episode - 1
+        : data.data?.Media?.episodes;
+      animeInfo.rating = data.data?.Media.averageScore;
+      animeInfo.duration = data.data?.Media.duration;
+      animeInfo.genres = data.data?.Media.genres;
+      animeInfo.season = data.data?.Media.season;
+      animeInfo.studios = data.data?.Media.studios.edges.map((item: any) => item.node.name);
       animeInfo.subOrDub = dub ? SubOrDub.DUB : SubOrDub.SUB;
-      animeInfo.type = data.data.Media.format;
-      animeInfo.recommendations = data.data.Media?.recommendations?.edges?.map((item: any) => ({
+      animeInfo.type = data.data?.Media.format;
+      animeInfo.recommendations = data.data?.Media?.recommendations?.edges?.map((item: any) => ({
         id: item.node.mediaRecommendation?.id,
         malId: item.node.mediaRecommendation?.idMal,
         title: {
