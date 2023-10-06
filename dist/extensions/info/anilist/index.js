@@ -432,6 +432,7 @@ class Anilist {
                 return animeInfo;
             }
             catch (error) {
+                console.error(error);
                 throw new Error(`Anilist Error: ${error.message}`);
             }
         });
@@ -460,66 +461,80 @@ class Anilist {
         return __awaiter(this, void 0, void 0, function* () {
             if (!malId)
                 return undefined;
-            const { data } = yield axios_1.default.get(`${this.mal_sync_api_url}/mal/anime/${malId}`);
-            // find site in sites
-            if (!data)
+            try {
+                const { data } = yield axios_1.default.get(`${this.mal_sync_api_url}/mal/anime/${malId}`);
+                // find site in sites
+                if (!data)
+                    return undefined;
+                const sitesT = data.Sites;
+                let sites = Object.values(sitesT).map((v, i) => {
+                    const obj = [...Object.values(Object.values(sitesT)[i])];
+                    const pages = obj.map((v) => ({
+                        page: v.page,
+                        url: v.url,
+                        title: v.title,
+                    }));
+                    return pages;
+                });
+                sites = sites.flat();
+                sites.sort((a, b) => {
+                    const targetTitle = data.title.toLowerCase();
+                    const firstRating = (0, utils_1.compareTwoStrings)(targetTitle, a.title.toLowerCase());
+                    const secondRating = (0, utils_1.compareTwoStrings)(targetTitle, b.title.toLowerCase());
+                    // Sort in descending order
+                    return secondRating - firstRating;
+                });
+                const possibleSource = sites.find((s) => {
+                    if (s.page.toLowerCase() !== this.provider.metaData.name.toLowerCase())
+                        return false;
+                    if (this.provider instanceof gogoanime_1.default) {
+                        return dub
+                            ? s.title.toLowerCase().includes("dub")
+                            : !s.title.toLowerCase().includes("dub");
+                    }
+                    else
+                        return true;
+                });
+                if (possibleSource)
+                    return possibleSource.url.split("/").pop();
+                if (!this.animapped_api_key)
+                    return undefined;
+                const { data: animapped_data } = yield axios_1.default.get(`${this.animapped_api_url}/mal/${malId}?api_key=${this.animapped_api_key}`);
+                const mappings = animapped_data === null || animapped_data === void 0 ? void 0 : animapped_data.mappings;
+                const findMappingSite = Object.entries(mappings).find(([key, v]) => {
+                    return key === this.provider.metaData.name.toLowerCase();
+                });
+                if (!findMappingSite)
+                    return undefined;
+                const findMapping = Object.entries(findMappingSite[1]).find(([key, v]) => {
+                    if (this.provider instanceof gogoanime_1.default) {
+                        return dub ? key.toLowerCase().includes("dub") : !key.toLowerCase().includes("dub");
+                    }
+                    else
+                        return true;
+                });
+                if (findMapping === null || findMapping === void 0 ? void 0 : findMapping[1])
+                    return findMapping === null || findMapping === void 0 ? void 0 : findMapping[1].id;
                 return undefined;
-            const sitesT = data.Sites;
-            let sites = Object.values(sitesT).map((v, i) => {
-                const obj = [...Object.values(Object.values(sitesT)[i])];
-                const pages = obj.map((v) => ({
-                    page: v.page,
-                    url: v.url,
-                    title: v.title,
-                }));
-                return pages;
-            });
-            sites = sites.flat();
-            sites.sort((a, b) => {
-                const targetTitle = data.title.toLowerCase();
-                const firstRating = (0, utils_1.compareTwoStrings)(targetTitle, a.title.toLowerCase());
-                const secondRating = (0, utils_1.compareTwoStrings)(targetTitle, b.title.toLowerCase());
-                // Sort in descending order
-                return secondRating - firstRating;
-            });
-            const possibleSource = sites.find((s) => {
-                if (s.page.toLowerCase() !== this.provider.metaData.name.toLowerCase())
-                    return false;
-                if (this.provider instanceof gogoanime_1.default) {
-                    return dub ? s.title.toLowerCase().includes("dub") : !s.title.toLowerCase().includes("dub");
-                }
-                else
-                    return true;
-            });
-            if (possibleSource)
-                return possibleSource.url.split("/").pop();
-            if (!this.animapped_api_key)
-                return undefined;
-            const { data: animapped_data } = yield axios_1.default.get(`${this.animapped_api_url}/mal/${malId}?api_key=${this.animapped_api_key}`);
-            const mappings = animapped_data === null || animapped_data === void 0 ? void 0 : animapped_data.mappings;
-            const findMappingSite = Object.entries(mappings).find(([key, v]) => {
-                return key === this.provider.metaData.name.toLowerCase();
-            });
-            if (!findMappingSite)
-                return undefined;
-            const findMapping = Object.entries(findMappingSite[1]).find(([key, v]) => {
-                if (this.provider instanceof gogoanime_1.default) {
-                    return dub ? key.toLowerCase().includes("dub") : !key.toLowerCase().includes("dub");
-                }
-                else
-                    return true;
-            });
-            if (findMapping === null || findMapping === void 0 ? void 0 : findMapping[1])
-                return findMapping === null || findMapping === void 0 ? void 0 : findMapping[1].id;
-            return undefined;
+            }
+            catch (error) {
+                console.error(error);
+                throw new Error(`Anilist Mapping Error: ${error.message}`);
+            }
         });
     }
     getEpisodes(provider_id) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!provider_id)
                 return [];
-            const data = yield this.provider.getMediaInfo(provider_id);
-            return data.episodes;
+            try {
+                const data = yield this.provider.getMediaInfo(provider_id);
+                return data.episodes;
+            }
+            catch (error) {
+                console.error(error);
+                throw new Error(`Anilist Episodes Error: ${error.message}`);
+            }
         });
     }
 }
