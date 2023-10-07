@@ -3,6 +3,7 @@ import {
   AnimappedRes,
   Genres,
   IEpisodeServer,
+  IMediaEpisode,
   IMediaInfo,
   IMediaResult,
   ISearch,
@@ -10,27 +11,40 @@ import {
   ITitle,
   MediaProvier,
   MediaStatus,
+  MetaData,
   SubOrDub,
 } from "../../../types";
 import GogoAnime from "../../anime/gogoanime";
 import { AdvancedSearch, MalsyncReturn } from "./types";
 import { compareTwoStrings } from "../../../utils";
-import { anilistAdvancedQuery, anilistMediaDetailQuery, anilistSearchQuery } from "./queries";
+import {
+  anilistAdvancedQuery,
+  anilistMediaDetailQuery,
+  anilistSearchQuery,
+  kitsuSearchQuery,
+} from "./queries";
+
+import * as metadata from "./extension.json";
 
 /**
  * Most of this code is from @consumet i have just modifed it a little
  * Its not intended for public use on use on my app (@ApolloTV)
  */
 
-class Anilist {
-  private readonly anilistGraphqlUrl = "https://graphql.anilist.co";
-  private readonly mal_sync_api_url = "https://api.malsync.moe";
-  private readonly animapped_api_url = "https://animapped.streamable.moe/api";
+class Anilist extends MediaProvier {
+  public metaData: MetaData = metadata;
+  protected baseUrl: string = metadata.code.utils.mainURL;
+
+  protected anilistGraphqlUrl: string = metadata.code.utils.apiURL;
+  protected animapped_api_url: string = metadata.code.utils.animappedApiRrl;
+  protected kitsuGraphqlUrl: string = metadata.code.utils.kitsuGraphqlUrl;
+
   provider: MediaProvier;
 
   private animapped_api_key?: string;
 
   constructor(provider?: MediaProvier, animapped_api_key?: string) {
+    super();
     this.provider = provider || new GogoAnime();
     this.animapped_api_key = animapped_api_key ?? "";
   }
@@ -468,7 +482,13 @@ class Anilist {
       }));
 
       const mappingId = await this.getMappingId(animeInfo.malId!?.toString(), dub);
-      const episodes = await this.getEpisodes(mappingId!);
+      const episodes = await this.getEpisodes(
+        mappingId!,
+        data.data?.Media.title.romaji!,
+        data.data?.Media.season,
+        data?.data?.Media?.startDate?.year!
+      );
+
       animeInfo.providerId = mappingId;
       animeInfo.episodes = episodes;
 
@@ -583,15 +603,127 @@ class Anilist {
     }
   }
 
-  private async getEpisodes(provider_id: string) {
+  private async getEpisodes(
+    provider_id: string,
+    title: string,
+    season: string,
+    startDateYear: number
+  ) {
     if (!provider_id) return [];
     try {
       const data = await this.provider.getMediaInfo(provider_id);
-      return data.episodes;
+      const episodes = data.episodes!;
+
+      if (episodes?.length <= 0) return [];
+
+      const slug = this.findAnimeSlugId(title);
+
+      const options = {
+        headers: { "Content-Type": "application/json" },
+        query: kitsuSearchQuery(slug),
+      };
+
+      const newEpisodeList = await this.findKitsuAnime(episodes, options, season, startDateYear);
+
+      if (newEpisodeList!.length <= 0 && episodes.length >= 1) return episodes;
+      return newEpisodeList;
     } catch (error) {
       console.error(error);
       throw new Error(`Anilist Episodes Error: ${(error as Error).message}`);
     }
+  }
+
+  private async findKitsuAnime(
+    episodesFromProvider: IMediaEpisode[],
+    options: {},
+    season?: string,
+    startDateYear?: number
+  ) {
+    try {
+      const kitsuEpisodes = await axios.post(this.kitsuGraphqlUrl, options);
+      const episodesList = new Map();
+
+      if (!kitsuEpisodes?.data.data) return undefined;
+
+      const { nodes } = kitsuEpisodes.data.data.searchAnimeByTitle;
+
+      if (nodes) {
+        nodes.forEach((node: any) => {
+          if (
+            node.season === season &&
+            node.startDate.trim().split("-")[0] === startDateYear?.toString()
+          ) {
+            const episodes = node.episodes.nodes;
+
+            for (const episode of episodes) {
+              const i = episode?.number.toString().replace(/"/g, "");
+
+              let name = undefined;
+              let description = undefined;
+              let thumbnail = undefined;
+
+              if (episode?.description?.en)
+                description = episode?.description.en
+                  .toString()
+                  .replace(/"/g, "")
+                  .replace("\\n", "\n");
+              if (episode?.thumbnail)
+                thumbnail = episode?.thumbnail.original.url.toString().replace(/"/g, "");
+
+              if (episode) {
+                if (episode.titles?.canonical) {
+                  name = episode.titles.canonical.toString().replace(/"/g, "");
+                }
+
+                episodesList.set(i, {
+                  episodeNum: episode?.number.toString().replace(/"/g, ""),
+                  title: name,
+                  description,
+                  createdAt: episode?.createdAt,
+                  thumbnail,
+                });
+                continue;
+              }
+              episodesList.set(i, {
+                episodeNum: undefined,
+                title: undefined,
+                description: undefined,
+                createdAt: undefined,
+                thumbnail,
+              });
+            }
+          }
+        });
+      }
+
+      const newEpisodeList: IMediaEpisode[] = [];
+
+      if (episodesFromProvider?.length !== 0) {
+        episodesFromProvider?.forEach((ep: any, i: any) => {
+          const j = (i + 1).toString();
+
+          newEpisodeList.push({
+            id: ep.id as string,
+            title: ep.title ?? episodesList.get(j)?.title ?? null,
+            image: ep.image ?? episodesList.get(j)?.thumbnail ?? null,
+            number: ep.number as number,
+            createdAt: ep.createdAt ?? episodesList.get(j)?.createdAt ?? null,
+            description: ep.description ?? episodesList.get(j)?.description ?? null,
+            url: (ep.url as string) ?? null,
+          });
+        });
+      }
+
+      return newEpisodeList;
+    } catch (error) {
+      console.error(error);
+      throw new Error(`Error fetching Kitsu episodes: ${(error as Error).message}`);
+    }
+  }
+
+  private findAnimeSlugId(title: string) {
+    const slug = title.replace(/[^0-9a-zA-Z]+/g, " ");
+    return slug;
   }
 }
 

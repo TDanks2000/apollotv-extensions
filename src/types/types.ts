@@ -329,6 +329,7 @@ export interface Code {
 export interface Utils {
   mainURL: string;
   apiURL?: string | null;
+  [x: string]: string | undefined | null;
 }
 
 export interface AnimeMapping {
