@@ -1,0 +1,20 @@
+{
+    "type": "info",
+    "name": "anilist",
+    "version": "0.0.1",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/6/61/AniList_logo.svg",
+    "author": {
+        "name": "Tommy",
+        "image": null,
+        "link": null
+    },
+    "code": {
+        "main": "index.js",
+        "utils": {
+            "mainURL": "https://anilist.co/",
+            "apiURL": "https://graphql.anilist.co",
+            "animappedApiRrl": "https://animapped.streamable.moe/api",
+            "kitsuGraphqlUrl": "https://kitsu.io/api/graphql"
+        }
+    }
+}

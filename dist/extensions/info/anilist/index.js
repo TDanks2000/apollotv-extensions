@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -16,15 +39,19 @@ const axios_1 = __importDefault(require("axios"));
 const types_1 = require("../../../types");
 const gogoanime_1 = __importDefault(require("../../anime/gogoanime"));
 const queries_1 = require("./queries");
+const metadata = __importStar(require("./extension.json"));
 /**
  * Most of this code is from @consumet i have just modifed it a little
  * Its not intended for public use on use on my app (@ApolloTV)
  */
-class Anilist {
+class Anilist extends types_1.MediaProvier {
     constructor(provider, animapped_api_key) {
-        this.anilistGraphqlUrl = "https://graphql.anilist.co";
-        this.mal_sync_api_url = "https://api.malsync.moe";
-        this.animapped_api_url = "https://animapped.streamable.moe/api";
+        super();
+        this.metaData = metadata;
+        this.baseUrl = metadata.code.utils.mainURL;
+        this.anilistGraphqlUrl = metadata.code.utils.apiURL;
+        this.animapped_api_url = metadata.code.utils.animappedApiRrl;
+        this.kitsuGraphqlUrl = metadata.code.utils.kitsuGraphqlUrl;
         this.provider = provider || new gogoanime_1.default();
         this.animapped_api_key = animapped_api_key !== null && animapped_api_key !== void 0 ? animapped_api_key : "";
     }
@@ -236,7 +263,7 @@ class Anilist {
         });
     }
     getMediaInfo(id, dub = false) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42, _43, _44, _45, _46, _47, _48, _49, _50, _51, _52, _53, _54, _55, _56, _57, _58, _59, _60, _61, _62, _63, _64, _65, _66, _67, _68, _69, _70, _71, _72, _73, _74, _75, _76, _77, _78, _79, _80, _81, _82, _83, _84, _85, _86, _87, _88, _89, _90, _91, _92, _93, _94, _95;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42, _43, _44, _45, _46, _47, _48, _49, _50, _51, _52, _53, _54, _55, _56, _57, _58, _59, _60, _61, _62, _63, _64, _65, _66, _67, _68, _69, _70, _71, _72, _73, _74, _75, _76, _77, _78, _79, _80, _81, _82, _83, _84, _85, _86, _87, _88, _89, _90, _91, _92, _93, _94, _95, _96, _97, _98, _99, _100;
         return __awaiter(this, void 0, void 0, function* () {
             const animeInfo = {
                 id: id,
@@ -425,7 +452,7 @@ class Anilist {
                     });
                 });
                 const mappingId = yield this.getMappingId((_95 = animeInfo.malId) === null || _95 === void 0 ? void 0 : _95.toString(), dub);
-                const episodes = yield this.getEpisodes(mappingId);
+                const episodes = yield this.getEpisodes(mappingId, (_96 = data.data) === null || _96 === void 0 ? void 0 : _96.Media.title.romaji, (_97 = data.data) === null || _97 === void 0 ? void 0 : _97.Media.season, (_100 = (_99 = (_98 = data === null || data === void 0 ? void 0 : data.data) === null || _98 === void 0 ? void 0 : _98.Media) === null || _99 === void 0 ? void 0 : _99.startDate) === null || _100 === void 0 ? void 0 : _100.year);
                 animeInfo.providerId = mappingId;
                 animeInfo.episodes = episodes;
                 return animeInfo;
@@ -530,19 +557,105 @@ class Anilist {
             }
         });
     }
-    getEpisodes(provider_id) {
+    getEpisodes(provider_id, title, season, startDateYear) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!provider_id)
                 return [];
             try {
                 const data = yield this.provider.getMediaInfo(provider_id);
-                return data.episodes;
+                const episodes = data.episodes;
+                if ((episodes === null || episodes === void 0 ? void 0 : episodes.length) <= 0)
+                    return [];
+                const slug = this.findAnimeSlugId(title);
+                const options = {
+                    headers: { "Content-Type": "application/json" },
+                    query: (0, queries_1.kitsuSearchQuery)(slug),
+                };
+                const newEpisodeList = yield this.findKitsuAnime(episodes, options, season, startDateYear);
+                if (newEpisodeList.length <= 0 && episodes.length >= 1)
+                    return episodes;
+                return newEpisodeList;
             }
             catch (error) {
                 console.error(error);
                 throw new Error(`Anilist Episodes Error: ${error.message}`);
             }
         });
+    }
+    findKitsuAnime(episodesFromProvider, options, season, startDateYear) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const kitsuEpisodes = yield axios_1.default.post(this.kitsuGraphqlUrl, options);
+                const episodesList = new Map();
+                if (!(kitsuEpisodes === null || kitsuEpisodes === void 0 ? void 0 : kitsuEpisodes.data.data))
+                    return undefined;
+                const { nodes } = kitsuEpisodes.data.data.searchAnimeByTitle;
+                if (nodes) {
+                    nodes.forEach((node) => {
+                        var _a, _b;
+                        if (node.season === season &&
+                            node.startDate.trim().split("-")[0] === (startDateYear === null || startDateYear === void 0 ? void 0 : startDateYear.toString())) {
+                            const episodes = node.episodes.nodes;
+                            for (const episode of episodes) {
+                                const i = episode === null || episode === void 0 ? void 0 : episode.number.toString().replace(/"/g, "");
+                                let name = undefined;
+                                let description = undefined;
+                                let thumbnail = undefined;
+                                if ((_a = episode === null || episode === void 0 ? void 0 : episode.description) === null || _a === void 0 ? void 0 : _a.en)
+                                    description = episode === null || episode === void 0 ? void 0 : episode.description.en.toString().replace(/"/g, "").replace("\\n", "\n");
+                                if (episode === null || episode === void 0 ? void 0 : episode.thumbnail)
+                                    thumbnail = episode === null || episode === void 0 ? void 0 : episode.thumbnail.original.url.toString().replace(/"/g, "");
+                                if (episode) {
+                                    if ((_b = episode.titles) === null || _b === void 0 ? void 0 : _b.canonical) {
+                                        name = episode.titles.canonical.toString().replace(/"/g, "");
+                                    }
+                                    episodesList.set(i, {
+                                        episodeNum: episode === null || episode === void 0 ? void 0 : episode.number.toString().replace(/"/g, ""),
+                                        title: name,
+                                        description,
+                                        createdAt: episode === null || episode === void 0 ? void 0 : episode.createdAt,
+                                        thumbnail,
+                                    });
+                                    continue;
+                                }
+                                episodesList.set(i, {
+                                    episodeNum: undefined,
+                                    title: undefined,
+                                    description: undefined,
+                                    createdAt: undefined,
+                                    thumbnail,
+                                });
+                            }
+                        }
+                    });
+                }
+                const newEpisodeList = [];
+                if ((episodesFromProvider === null || episodesFromProvider === void 0 ? void 0 : episodesFromProvider.length) !== 0) {
+                    episodesFromProvider === null || episodesFromProvider === void 0 ? void 0 : episodesFromProvider.forEach((ep, i) => {
+                        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
+                        const j = (i + 1).toString();
+                        newEpisodeList.push({
+                            id: ep.id,
+                            title: (_c = (_a = ep.title) !== null && _a !== void 0 ? _a : (_b = episodesList.get(j)) === null || _b === void 0 ? void 0 : _b.title) !== null && _c !== void 0 ? _c : null,
+                            image: (_f = (_d = ep.image) !== null && _d !== void 0 ? _d : (_e = episodesList.get(j)) === null || _e === void 0 ? void 0 : _e.thumbnail) !== null && _f !== void 0 ? _f : null,
+                            number: ep.number,
+                            createdAt: (_j = (_g = ep.createdAt) !== null && _g !== void 0 ? _g : (_h = episodesList.get(j)) === null || _h === void 0 ? void 0 : _h.createdAt) !== null && _j !== void 0 ? _j : null,
+                            description: (_m = (_k = ep.description) !== null && _k !== void 0 ? _k : (_l = episodesList.get(j)) === null || _l === void 0 ? void 0 : _l.description) !== null && _m !== void 0 ? _m : null,
+                            url: (_o = ep.url) !== null && _o !== void 0 ? _o : null,
+                        });
+                    });
+                }
+                return newEpisodeList;
+            }
+            catch (error) {
+                console.error(error);
+                throw new Error(`Error fetching Kitsu episodes: ${error.message}`);
+            }
+        });
+    }
+    findAnimeSlugId(title) {
+        const slug = title.replace(/[^0-9a-zA-Z]+/g, " ");
+        return slug;
     }
 }
 exports.default = Anilist;

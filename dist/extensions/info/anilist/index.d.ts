@@ -1,13 +1,15 @@
-import { IEpisodeServer, IMediaInfo, IMediaResult, ISearch, ISource, MediaProvier } from "../../../types";
+import { IEpisodeServer, IMediaInfo, IMediaResult, ISearch, ISource, MediaProvier, MetaData } from "../../../types";
 import { AdvancedSearch } from "./types";
 /**
  * Most of this code is from @consumet i have just modifed it a little
  * Its not intended for public use on use on my app (@ApolloTV)
  */
-declare class Anilist {
-    private readonly anilistGraphqlUrl;
-    private readonly mal_sync_api_url;
-    private readonly animapped_api_url;
+declare class Anilist extends MediaProvier {
+    metaData: MetaData;
+    protected baseUrl: string;
+    protected anilistGraphqlUrl: string;
+    protected animapped_api_url: string;
+    protected kitsuGraphqlUrl: string;
     provider: MediaProvier;
     private animapped_api_key?;
     constructor(provider?: MediaProvier, animapped_api_key?: string);
@@ -18,5 +20,7 @@ declare class Anilist {
     getMediaServers(episodeId: string): Promise<IEpisodeServer[]>;
     private getMappingId;
     private getEpisodes;
+    private findKitsuAnime;
+    private findAnimeSlugId;
 }
 export default Anilist;
