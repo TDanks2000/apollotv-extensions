@@ -172,10 +172,4 @@ class Mangasee123 extends ReadableParser {
   };
 }
 
-(async () => {
-  const ms = new Mangasee123();
-  const info = await ms.getChapterPages("One-Piece-chapter-1088");
-  console.log(info);
-})();
-
 export default Mangasee123;
