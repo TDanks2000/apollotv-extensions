@@ -38,8 +38,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const types_1 = require("../../../types");
 const gogoanime_1 = __importDefault(require("../../anime/gogoanime"));
+const utils_1 = require("../../../utils");
 const queries_1 = require("./queries");
 const metadata = __importStar(require("./extension.json"));
+const manga_1 = require("./manga");
 /**
  * Most of this code is from @consumet i have just modifed it a little
  * Its not intended for public use on use on my app (@ApolloTV)
@@ -54,6 +56,7 @@ class Anilist extends types_1.MediaProvier {
         this.kitsuGraphqlUrl = metadata.code.utils.kitsuGraphqlUrl;
         this.provider = provider || new gogoanime_1.default();
         this.animapped_api_key = animapped_api_key !== null && animapped_api_key !== void 0 ? animapped_api_key : "";
+        this.Manga = new manga_1.AnilistManga();
     }
     search(query, page = 1, perPage = 15) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
@@ -489,42 +492,41 @@ class Anilist extends types_1.MediaProvier {
             if (!malId)
                 return undefined;
             try {
-                // const { data } = await axios.get<MalsyncReturn>(
-                //   `${this.mal_sync_api_url}/mal/anime/${malId}`
-                // );
-                // // find site in sites
-                // if (!data) return undefined;
-                // const sitesT = data.Sites;
-                // let sites = Object.values(sitesT).map((v, i) => {
-                //   const obj = [...Object.values(Object.values(sitesT)[i])];
-                //   const pages: any = obj.map((v) => ({
-                //     page: v.page,
-                //     url: v.url,
-                //     title: v.title,
-                //   }));
-                //   return pages;
-                // }) as {
-                //   page: string;
-                //   url: string;
-                //   title: string;
-                // }[];
-                // sites = sites.flat();
-                // sites.sort((a, b) => {
-                //   const targetTitle = data.title.toLowerCase();
-                //   const firstRating = compareTwoStrings(targetTitle, a.title.toLowerCase());
-                //   const secondRating = compareTwoStrings(targetTitle, b.title.toLowerCase());
-                //   // Sort in descending order
-                //   return secondRating - firstRating;
-                // });
-                // const possibleSource = sites.find((s) => {
-                //   if (s.page.toLowerCase() !== this.provider.metaData.name.toLowerCase()) return false;
-                //   if (this.provider instanceof GogoAnime) {
-                //     return dub
-                //       ? s.title.toLowerCase().includes("dub")
-                //       : !s.title.toLowerCase().includes("dub");
-                //   } else return true;
-                // });
-                // if (possibleSource) return possibleSource.url.split("/").pop()!;
+                const { data } = yield axios_1.default.get(`https://raw.githubusercontent.com/bal-mackup/mal-backup/master/mal/anime/${malId}.json`);
+                // find site in sites
+                if (!data)
+                    return undefined;
+                const sitesT = data.Sites;
+                let sites = Object.values(sitesT).map((v, i) => {
+                    const obj = [...Object.values(Object.values(sitesT)[i])];
+                    const pages = obj.map((v) => ({
+                        page: v.page,
+                        url: v.url,
+                        title: v.title,
+                    }));
+                    return pages;
+                });
+                sites = sites.flat();
+                sites.sort((a, b) => {
+                    const targetTitle = data.title.toLowerCase();
+                    const firstRating = (0, utils_1.compareTwoStrings)(targetTitle, a.title.toLowerCase());
+                    const secondRating = (0, utils_1.compareTwoStrings)(targetTitle, b.title.toLowerCase());
+                    // Sort in descending order
+                    return secondRating - firstRating;
+                });
+                const possibleSource = sites.find((s) => {
+                    if (s.page.toLowerCase() !== this.provider.metaData.name.toLowerCase())
+                        return false;
+                    if (this.provider instanceof gogoanime_1.default) {
+                        return dub
+                            ? s.title.toLowerCase().includes("dub")
+                            : !s.title.toLowerCase().includes("dub");
+                    }
+                    else
+                        return true;
+                });
+                if (possibleSource)
+                    return possibleSource.url.split("/").pop();
                 if (!this.animapped_api_key)
                     return undefined;
                 const { data: animapped_data } = yield axios_1.default.get(`${this.animapped_api_url}/mal/${malId}?api_key=${this.animapped_api_key}`);
@@ -552,7 +554,6 @@ class Anilist extends types_1.MediaProvier {
                 return ((_a = findMapping === null || findMapping === void 0 ? void 0 : findMapping[1]) === null || _a === void 0 ? void 0 : _a.id) || undefined;
             }
             catch (error) {
-                console.error(error);
                 throw new Error(`Anilist Mapping Error: ${error.message}`);
             }
         });
@@ -658,4 +659,9 @@ class Anilist extends types_1.MediaProvier {
         return slug;
     }
 }
+// (async () => {
+//   const anilist = new Anilist();
+//   const data = await anilist.Manga.getMediaInfo("30013");
+//   console.log(data);
+// })();
 exports.default = Anilist;

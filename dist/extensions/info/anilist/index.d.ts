@@ -1,5 +1,6 @@
 import { IEpisodeServer, IMediaInfo, IMediaResult, ISearch, ISource, MediaProvier, MetaData } from "../../../types";
 import { AdvancedSearch } from "./types";
+import { AnilistManga } from "./manga";
 /**
  * Most of this code is from @consumet i have just modifed it a little
  * Its not intended for public use on use on my app (@ApolloTV)
@@ -22,5 +23,6 @@ declare class Anilist extends MediaProvier {
     private getEpisodes;
     private findKitsuAnime;
     private findAnimeSlugId;
+    Manga: AnilistManga;
 }
 export default Anilist;

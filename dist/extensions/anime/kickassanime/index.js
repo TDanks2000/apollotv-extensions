@@ -135,7 +135,7 @@ class Kickassanime extends types_1.MediaProvier {
                 }
             }
             catch (error) {
-                console.log(error);
+                throw new Error(error.message);
             }
             return animeInfo;
         });
@@ -148,7 +148,6 @@ class Kickassanime extends types_1.MediaProvier {
                 const serverItem = servers.find((item) => item.name.toLowerCase() === server) || servers[0];
                 if (!serverItem)
                     throw new Error("Server not found");
-                console.log(serverItem.name);
                 const name = serverItem.name.toLowerCase();
                 const url = new URL(serverItem.url);
                 const isBirb = name === "bird";
@@ -355,7 +354,7 @@ class Kickassanime extends types_1.MediaProvier {
                 }
             }
             catch (error) {
-                console.log(error);
+                throw new Error(error.message);
             }
             return returnData;
         });
