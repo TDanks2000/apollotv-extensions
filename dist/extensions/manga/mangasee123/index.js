@@ -146,11 +146,13 @@ class Mangasee123 extends types_1.ReadableParser {
                     const curChapter = this.processScriptTagVariable(chapterScript.data, "vm.CurChapter = ");
                     const imageHost = this.processScriptTagVariable(chapterScript.data, "vm.CurPathName = ");
                     const curChapterLength = Number(curChapter["Page"]);
+                    console.log(curChapter);
                     for (let i = 0; i < curChapterLength; i++) {
                         const chapter = this.processChapterForImageUrl(chapterId.replace(/[^0-9.]/g, ""));
                         const page = `${i + 1}`.padStart(3, "0");
                         const mangaId = chapterId.split("-chapter-", 1)[0];
-                        const imagePath = `https://${imageHost}/manga/${mangaId}/${chapter}-${page}.png`;
+                        // const imagePath = `https://${imageHost}/manga/${mangaId}/${chapter}-${page}.png`;
+                        const imagePath = `https://${imageHost}/manga/${mangaId}/${curChapter.Directory == "" ? "" : curChapter.Directory + "/"}${chapter}-${page}.png`;
                         images.push(imagePath);
                     }
                 }
