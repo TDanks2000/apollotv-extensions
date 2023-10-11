@@ -283,10 +283,12 @@ export interface IReadableResult {
 
 export interface IReadableChapter {
   id: string;
-  title: string;
-  volume?: number;
-  pages?: number;
-  releaseDate?: string;
+  title: string | [lang: string][] | ITitle;
+  altTitles?: string | string[] | [lang: string][];
+  image?: string;
+  description?: string | [lang: string][] | { [lang: string]: string };
+  status?: MediaStatus;
+  releaseDate?: number | string;
   [x: string]: unknown; // other fields
 }
 

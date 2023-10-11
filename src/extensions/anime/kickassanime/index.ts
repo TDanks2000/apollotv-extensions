@@ -102,7 +102,7 @@ class Kickassanime extends MediaProvier {
         animeInfo.episodes = await this.loadAllEps(episodeData, episodeBase(subOrDub));
       }
     } catch (error) {
-      console.log(error);
+      throw new Error((error as Error).message);
     }
 
     return animeInfo;
@@ -119,8 +119,6 @@ class Kickassanime extends MediaProvier {
       const serverItem = servers.find((item) => item.name.toLowerCase() === server) || servers[0];
 
       if (!serverItem) throw new Error("Server not found");
-
-      console.log(serverItem.name);
 
       const name = serverItem.name.toLowerCase();
       const url = new URL(serverItem.url);
@@ -326,7 +324,7 @@ class Kickassanime extends MediaProvier {
         }
       }
     } catch (error) {
-      console.log(error);
+      throw new Error((error as Error).message);
     }
 
     return returnData;
