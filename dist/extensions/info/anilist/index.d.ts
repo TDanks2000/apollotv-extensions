@@ -19,10 +19,12 @@ declare class Anilist extends MediaProvier {
     getMediaInfo(id: string, dub?: boolean): Promise<IMediaInfo>;
     getMediaSources(episodeId: string, ...args: any): Promise<ISource>;
     getMediaServers(episodeId: string): Promise<IEpisodeServer[]>;
-    private getMappingId;
-    private getEpisodes;
+    private fetchDefaultEpisodeList;
+    private findAnime;
+    private findAnimeSlug;
+    private findMappingId;
+    private findAnimeRaw;
     private findKitsuAnime;
-    private findAnimeSlugId;
     Manga: AnilistManga;
 }
 export default Anilist;

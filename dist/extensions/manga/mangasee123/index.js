@@ -146,7 +146,6 @@ class Mangasee123 extends types_1.ReadableParser {
                     const curChapter = this.processScriptTagVariable(chapterScript.data, "vm.CurChapter = ");
                     const imageHost = this.processScriptTagVariable(chapterScript.data, "vm.CurPathName = ");
                     const curChapterLength = Number(curChapter["Page"]);
-                    console.log(curChapter);
                     for (let i = 0; i < curChapterLength; i++) {
                         const chapter = this.processChapterForImageUrl(chapterId.replace(/[^0-9.]/g, ""));
                         const page = `${i + 1}`.padStart(3, "0");
