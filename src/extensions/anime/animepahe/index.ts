@@ -14,6 +14,7 @@ import {
 } from "../../../types";
 
 import * as metadata from "./extension.json";
+import fs from "fs";
 
 class AnimePahe extends MediaProvier {
   public metaData: MetaData = metadata;
@@ -44,8 +45,6 @@ class AnimePahe extends MediaProvier {
   }
 
   async getMediaInfo(animeId: string, episodePage: number = -1): Promise<IMediaInfo> {
-    console.log(animeId);
-
     const animeInfo: IMediaInfo = {
       id: animeId,
       title: "",
@@ -58,6 +57,9 @@ class AnimePahe extends MediaProvier {
 
       const res = await this.client.get(url);
       const $ = load(res.data);
+      console.log(
+        `${this.baseUrl}/anime/${animeId.split("/")[1]}?anime_id=${animeId.split("/")[0]}`
+      );
 
       animeInfo.title = $("div.title-wrapper > h1 > span").first().text();
       animeInfo.image = $("div.anime-poster a").attr("href");

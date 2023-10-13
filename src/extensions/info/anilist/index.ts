@@ -685,7 +685,6 @@ class Anilist extends MediaProvier {
     }
 
     if (!possibleAnime) return undefined;
-    console.log(possibleAnime);
 
     // To avoid a new request, lets match and see if the anime show found is in sub/dub
 
@@ -696,7 +695,10 @@ class Anilist extends MediaProvier {
       if (possibleAnime.subOrDub != SubOrDubOrBoth.BOTH && possibleAnime.subOrDub != expectedType) {
         return undefined;
       }
-    } else if ((!possibleAnime.hasDub && dub) || (!possibleAnime.hasSub && !dub)) {
+    } else if (
+      ((!possibleAnime.hasDub && dub) || (!possibleAnime.hasSub && !dub)) &&
+      !this.provider.metaData.name.toLowerCase().includes("animepahe")
+    ) {
       return undefined;
     }
 
@@ -751,7 +753,6 @@ class Anilist extends MediaProvier {
       typeof possibleProviderEpisodes[0]?.title !== "undefined" &&
       typeof possibleProviderEpisodes[0]?.description !== "undefined"
     ) {
-      console.log("new episodes", possibleProviderEpisodes);
       return possibleProviderEpisodes;
     }
 
