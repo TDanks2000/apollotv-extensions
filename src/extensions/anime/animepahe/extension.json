@@ -1,0 +1,18 @@
+{
+  "type": "anime",
+  "name": "animepahe",
+  "version": "0.0.1",
+  "image": "https://animepahe.ru/apple-touch-icon.png",
+  "author": {
+    "name": "Tommy",
+    "image": null,
+    "link": null
+  },
+  "code": {
+    "main": "index",
+    "utils": {
+      "mainURL": "https://animepahe.ru",
+      "apiURL": "https://animepahe.ru/api"
+    }
+  }
+}
