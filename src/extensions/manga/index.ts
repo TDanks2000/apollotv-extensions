@@ -1,3 +1,7 @@
 import MangaPill from "./mangaPill";
+import Mangasee123 from "./mangasee123";
 
-export default { MangaPill };
+export default {
+  Mangasee123,
+  MangaPill,
+};
