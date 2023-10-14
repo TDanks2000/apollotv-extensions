@@ -47,12 +47,14 @@ class AnimePahe extends types_1.MediaProvier {
             const epData = res.data.data;
             return [
                 ...epData.map((item) => ({
-                    id: item.anime_id,
+                    id: item.anime_id.toString(),
                     number: item.episode,
                     title: item.title,
                     image: item.snapshot,
                     duration: item.duration,
                     url: `${this.baseUrl}/play/${session}/${item.session}`,
+                    hasDub: item.audio === "eng",
+                    hasSub: item.audio === "eng" || item.audio === "jpn",
                 })),
             ];
         });
@@ -85,10 +87,11 @@ class AnimePahe extends types_1.MediaProvier {
                 title: "",
             };
             try {
-                const url = `${this.baseUrl}/anime/${animeId.split("/")[1]}?anime_id=${animeId.split("/")[0]}`;
+                const url = animeId.split("/").length > 1
+                    ? `${this.baseUrl}/anime/${animeId.split("/")[1]}?anime_id=${animeId.split("/")[0]}`
+                    : `${this.baseUrl}/anime/${animeId}`;
                 const res = yield this.client.get(url);
                 const $ = (0, cheerio_1.load)(res.data);
-                console.log(`${this.baseUrl}/anime/${animeId.split("/")[1]}?anime_id=${animeId.split("/")[0]}`);
                 animeInfo.title = $("div.title-wrapper > h1 > span").first().text();
                 animeInfo.image = $("div.anime-poster a").attr("href");
                 animeInfo.cover = `https:${$("div.anime-cover").attr("data-src")}`;
@@ -127,23 +130,28 @@ class AnimePahe extends types_1.MediaProvier {
                     .split("\n");
                 animeInfo.totalEpisodes = parseInt($("div.col-sm-4.anime-info > p:nth-child(3)").text().replace("Episodes:", ""));
                 animeInfo.episodes = [];
+                const animeIDReal = animeId.split("/").length > 1 ? animeId.split("/")[1] : animeId;
                 if (episodePage < 0) {
-                    const { data: { last_page, data }, } = yield this.client.get(`${this.baseUrl}/api?m=release&id=${animeId.split("/")[1]}&sort=episode_asc&page=1`);
+                    const { data: { last_page, data }, } = yield this.client.get(`${this.baseUrl}/api?m=release&id=${animeIDReal}&sort=episode_asc&page=1`);
+                    animeInfo.hasDub = data[0].audio === "eng";
+                    animeInfo.hasSub = data[0].audio === "eng" || data[0].audio === "jpn";
                     animeInfo.episodePages = last_page;
                     animeInfo.episodes.push(...data.map((item) => ({
-                        id: `${animeId.split("/")[1]}/${item.session}`,
+                        id: `${animeIDReal}/${item.session}`,
                         number: item.episode,
                         title: item.title,
                         image: item.snapshot,
                         duration: item.duration,
-                        url: `${this.baseUrl}/play/${animeId.split("/")[1]}/${item.session}`,
+                        url: `${this.baseUrl}/play/${animeIDReal}/${item.session}`,
+                        hasDub: item.audio === "eng",
+                        hasSub: item.audio === "eng" || item.audio === "jpn",
                     })));
                     for (let i = 1; i < last_page; i++) {
-                        animeInfo.episodes.push(...(yield this.getEpisodes(animeId.split("/")[1], i + 1)));
+                        animeInfo.episodes.push(...(yield this.getEpisodes(animeIDReal, i + 1)));
                     }
                 }
                 else {
-                    animeInfo.episodes.push(...(yield this.getEpisodes(animeId.split("/")[1], episodePage)));
+                    animeInfo.episodes.push(...(yield this.getEpisodes(animeIDReal, episodePage)));
                 }
                 return animeInfo;
             }
