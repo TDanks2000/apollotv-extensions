@@ -15,6 +15,7 @@ import {
 
 import * as metadata from "./extension.json";
 import fs from "fs";
+import { AnimePaheEpisodes, AnimePaheSearch } from "./types";
 
 class AnimePahe extends MediaProvier {
   public metaData: MetaData = metadata;
@@ -23,7 +24,7 @@ class AnimePahe extends MediaProvier {
 
   async search(query: string): Promise<ISearch<IMediaResult>> {
     try {
-      const { data } = await this.client.get(
+      const { data } = await this.client.get<AnimePaheSearch>(
         `${this.baseUrl}/api?m=search&q=${encodeURIComponent(query)}`
       );
 
@@ -51,15 +52,13 @@ class AnimePahe extends MediaProvier {
     };
 
     try {
-      const url = `${this.baseUrl}/anime/${animeId.split("/")[1]}?anime_id=${
-        animeId.split("/")[0]
-      }`;
+      const url =
+        animeId.split("/").length > 1
+          ? `${this.baseUrl}/anime/${animeId.split("/")[1]}?anime_id=${animeId.split("/")[0]}`
+          : `${this.baseUrl}/anime/${animeId}`;
 
       const res = await this.client.get(url);
       const $ = load(res.data);
-      console.log(
-        `${this.baseUrl}/anime/${animeId.split("/")[1]}?anime_id=${animeId.split("/")[0]}`
-      );
 
       animeInfo.title = $("div.title-wrapper > h1 > span").first().text();
       animeInfo.image = $("div.anime-poster a").attr("href");
@@ -103,34 +102,41 @@ class AnimePahe extends MediaProvier {
       );
 
       animeInfo.episodes = [];
+
+      const animeIDReal = animeId.split("/").length > 1 ? animeId.split("/")[1] : animeId;
+
       if (episodePage < 0) {
         const {
           data: { last_page, data },
-        } = await this.client.get(
-          `${this.baseUrl}/api?m=release&id=${animeId.split("/")[1]}&sort=episode_asc&page=1`
+        } = await this.client.get<AnimePaheEpisodes>(
+          `${this.baseUrl}/api?m=release&id=${animeIDReal}&sort=episode_asc&page=1`
         );
 
+        animeInfo.hasDub = data[0].audio === "eng";
+        animeInfo.hasSub = data[0].audio === "eng" || data[0].audio === "jpn";
         animeInfo.episodePages = last_page;
 
         animeInfo.episodes.push(
           ...data.map(
-            (item: any) =>
+            (item) =>
               ({
-                id: `${animeId.split("/")[1]}/${item.session}`,
+                id: `${animeIDReal}/${item.session}`,
                 number: item.episode,
                 title: item.title,
                 image: item.snapshot,
                 duration: item.duration,
-                url: `${this.baseUrl}/play/${animeId.split("/")[1]}/${item.session}`,
-              } as IMediaInfo)
+                url: `${this.baseUrl}/play/${animeIDReal}/${item.session}`,
+                hasDub: item.audio === "eng",
+                hasSub: item.audio === "eng" || item.audio === "jpn",
+              } as IMediaEpisode)
           )
         );
 
         for (let i = 1; i < last_page; i++) {
-          animeInfo.episodes.push(...(await this.getEpisodes(animeId.split("/")[1], i + 1)));
+          animeInfo.episodes.push(...(await this.getEpisodes(animeIDReal, i + 1)));
         }
       } else {
-        animeInfo.episodes.push(...(await this.getEpisodes(animeId.split("/")[1], episodePage)));
+        animeInfo.episodes.push(...(await this.getEpisodes(animeIDReal, episodePage)));
       }
 
       return animeInfo;
@@ -180,7 +186,7 @@ class AnimePahe extends MediaProvier {
   }
 
   private getEpisodes = async (session: string, page: number): Promise<IMediaEpisode[]> => {
-    const res = await this.client.get(
+    const res = await this.client.get<AnimePaheEpisodes>(
       `${this.baseUrl}/api?m=release&id=${session}&sort=episode_asc&page=${page}`
     );
 
@@ -188,13 +194,15 @@ class AnimePahe extends MediaProvier {
 
     return [
       ...epData.map(
-        (item: any): IMediaEpisode => ({
-          id: item.anime_id,
+        (item): IMediaEpisode => ({
+          id: item.anime_id.toString(),
           number: item.episode,
           title: item.title,
           image: item.snapshot,
           duration: item.duration,
           url: `${this.baseUrl}/play/${session}/${item.session}`,
+          hasDub: item.audio === "eng",
+          hasSub: item.audio === "eng" || item.audio === "jpn",
         })
       ),
     ] as IMediaEpisode[];

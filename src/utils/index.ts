@@ -1,4 +1,3 @@
-import { EXTENSION_LIST } from "./extensions-list";
 import {
   USER_AGENT,
   days,
@@ -17,8 +16,8 @@ import {
   substringAfterLast,
   substringBeforeLast,
 } from "./utils";
+
 export {
-  EXTENSION_LIST,
   USER_AGENT,
   days,
   splitAuthor,

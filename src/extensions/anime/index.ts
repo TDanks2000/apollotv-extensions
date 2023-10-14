@@ -1,9 +1,5 @@
+import Gogoanime from "./gogoanime";
 import AnimePahe from "./animepahe";
-import GogoAnime from "./gogoanime";
 import Kickassanime from "./kickassanime";
 
-export default {
-  AnimePahe,
-  GogoAnime,
-  Kickassanime,
-};
+export default { Gogoanime, AnimePahe, Kickassanime };
