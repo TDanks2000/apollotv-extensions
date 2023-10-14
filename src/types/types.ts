@@ -97,6 +97,8 @@ export interface IMediaEpisode {
   isFiller?: boolean;
   image?: string;
   releaseDate?: string;
+  hasSub?: boolean | null | "UNKOWN";
+  hasDub?: boolean | null | "UNKOWN";
   [x: string]: unknown; // other fields
 }
 

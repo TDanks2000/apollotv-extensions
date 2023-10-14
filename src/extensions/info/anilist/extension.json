@@ -1,7 +1,7 @@
 {
   "type": "info",
   "name": "anilist",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "image": "https://upload.wikimedia.org/wikipedia/commons/6/61/AniList_logo.svg",
   "author": {
     "name": "Tommy",

@@ -957,16 +957,18 @@ class Anilist extends MediaProvier {
 
     const newEpisodeList: IMediaEpisode[] = [];
     if (possibleProviderEpisodes?.length !== 0) {
-      possibleProviderEpisodes?.forEach((ep: any, i: any) => {
+      possibleProviderEpisodes?.forEach((ep, i) => {
         const j = (i + 1).toString();
         newEpisodeList.push({
           id: ep.id as string,
           title: ep.title ?? episodesList.get(j)?.title ?? null,
           image: ep.image ?? episodesList.get(j)?.thumbnail ?? null,
-          number: ep.number as number,
+          number: (ep.number as number) ?? null,
           createdAt: ep.createdAt ?? episodesList.get(j)?.createdAt ?? null,
           description: ep.description ?? episodesList.get(j)?.description ?? null,
           url: (ep.url as string) ?? null,
+          hasDub: ep.hasDub ?? "UNKOWN",
+          hasSub: ep.hasSub ?? "UNKOWN",
         });
       });
     }
