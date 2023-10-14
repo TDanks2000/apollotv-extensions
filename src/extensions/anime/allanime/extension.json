@@ -1,0 +1,18 @@
+{
+  "type": "anime",
+  "name": "AllAnime",
+  "version": "0.0.1",
+  "image": "https://allanime.to/pics/allanime-md.png",
+  "author": {
+    "name": "Tommy",
+    "image": null,
+    "link": null
+  },
+  "code": {
+    "main": "index",
+    "utils": {
+      "mainURL": "https://allanime.to",
+      "apiURL": "https://api.allanime.day/api"
+    }
+  }
+}
