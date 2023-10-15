@@ -19,11 +19,13 @@ import {
   AllAnimeEpisodeInfo,
   AllAnimeEpisodeInfoData,
   AllAnimeInfo,
+  AllAnimeLinks,
   AllAnimeSearch,
   AllAnimeServerInfo,
 } from "./types";
 import { AllAnimeDecryptor } from "./helpers/decrypt";
 import { substringAfter } from "../../../utils";
+import { Mp4Upload, StreamLare } from "../../../extractors";
 
 enum AllAnimeServer {
   AllAnime = "AllAnime",
@@ -162,34 +164,61 @@ class AllAnime extends MediaProvier {
     server: StreamingServers | AllAnimeServer = StreamingServers.VidStreaming,
     dub: boolean = false
   ): Promise<ISource> {
-    if (!episodeId.includes("/"))
+    if (!episodeId || !episodeId.includes("/"))
       throw new Error("Invalid episode id, episode id must include <animeId>/<episodeNumber>");
 
-    const servers = await this.getMediaServers(episodeId, dub);
+    try {
+      const servers = await this.getMediaServers(episodeId, dub);
 
-    for await (const source of servers) {
-      let videoUrl;
+      let urls;
+      switch (server) {
+        case StreamingServers.Mp4Upload:
+          urls = servers.find((server) => server.name.toLowerCase().includes("mp4upload"))!.url;
+          return {
+            sources: await new Mp4Upload().extract(new URL(urls)),
+          };
+        case StreamingServers.streamlare:
+          urls = servers.find((server) => server.name.toLowerCase().includes("streamlare"))!.url;
+          const resp = await new StreamLare().extract(new URL(urls));
+          if (!resp) throw new Error("No source avaliable");
+          return resp;
+        default:
+          urls = servers.filter((server) => server.url.startsWith("--"))!;
 
-      if (source.url.startsWith("##")) {
-        videoUrl = AllAnimeDecryptor.decryptAllAnime(
-          "1234567890123456789",
-          substringAfter(source.url, "##")
-        );
-      } else if (source.url.startsWith("#")) {
-        videoUrl = AllAnimeDecryptor.decryptAllAnime(
-          "allanimenews",
-          substringAfter(source.url, "#")
-        );
-      } else {
-        videoUrl = source.url;
+          const toReturn: ISource = {
+            sources: [],
+          };
+
+          for await (const url of urls) {
+            if (url.url.startsWith("--")) {
+              url.url = AllAnimeDecryptor.oneDigitSymmetricXOR(56, url.url.replace("--", ""));
+            }
+
+            if (url.url.startsWith("/")) {
+              try {
+                const { data } = await axios.get<AllAnimeLinks>(
+                  this.to_clock_json(`https://blog.allanime.day${url.url}`)
+                );
+                data.links.forEach((link) => {
+                  toReturn.sources.push({
+                    url: link.link,
+                    isM3U8: link?.hls === true,
+                    isDASH: link?.dash === true,
+                    quality: link?.resolutionStr,
+                  });
+                });
+              } catch (error) {
+                continue;
+              }
+            }
+          }
+          return toReturn;
       }
+    } catch (error) {
+      console.error(error);
+
+      throw new Error(`Error getting Sources: ${(error as Error).message}`);
     }
-
-    // switch (server) {
-    //   case
-    // }
-
-    throw new Error("Method not implemented.");
   }
 
   async getMediaServers(episodeId: string, dub: boolean = false): Promise<IEpisodeServer[]> {
@@ -205,36 +234,36 @@ class AllAnime extends MediaProvier {
       dub === true ? "dub" : "sub"
     }","episodeString":"${episodeNumber}"}`;
 
-    const data = await this.graphqlQuery<AllAnimeServerInfo>(variables, this.videoServerHash);
-    const sources = data?.data?.episode?.sourceUrls;
+    try {
+      const data = await this.graphqlQuery<AllAnimeServerInfo>(variables, this.videoServerHash);
+      const sources = data?.data?.episode?.sourceUrls;
 
-    if (!sources) return [];
+      if (!sources) return [];
 
-    for await (const source of sources) {
-      let serverName = source.sourceName;
-      let sourceNum = 2;
+      for await (const source of sources) {
+        let serverName = source.sourceName;
+        let sourceNum = 2;
 
-      while (videoServers.some((server) => server.name === serverName)) {
-        serverName = `${source.sourceName} (${sourceNum})`;
-        sourceNum++;
-      }
-
-      if (!source.sourceUrl.includes("http")) {
-        const jsonUrl = `${source.sourceUrl.replace("clock", "clock.json").substring(1)}`;
+        while (videoServers.some((server) => server.name === serverName)) {
+          serverName = `${source.sourceName} (${sourceNum})`;
+          sourceNum++;
+        }
 
         videoServers.push({
           name: serverName!,
-          url: jsonUrl,
-        });
-      } else {
-        videoServers.push({
-          name: serverName,
           url: source.sourceUrl,
+          type: source.type,
         });
       }
-    }
 
-    return videoServers;
+      return videoServers;
+    } catch (error) {
+      throw new Error(`Error parsing Servers: ${(error as Error).message}`);
+    }
+  }
+
+  private to_clock_json(url: string): string {
+    return url.replace("clock", "clock.json");
   }
 
   private async graphqlQuery<T>(variables: string, persistHash: string): Promise<T | null> {
@@ -263,7 +292,7 @@ export default AllAnime;
 (async () => {
   const allAnime = new AllAnime();
   const info = await allAnime.getMediaInfo("ZxB3cadtyvKpa6n4B");
-  const servers = await allAnime.getMediaServers(info.episodes![0].id!);
+  const servers = await allAnime.getMediaSources(info.episodes![0]?.id!);
 
   console.log(servers);
 })();

@@ -427,3 +427,16 @@ export enum Type {
   Iframe = "iframe",
   Player = "player",
 }
+
+export interface AllAnimeLinks {
+  links: Link[];
+}
+
+export interface Link {
+  link: string;
+  mp4: boolean;
+  resolutionStr: string;
+  src: string;
+  fromCache: Date;
+  [x: string]: any;
+}

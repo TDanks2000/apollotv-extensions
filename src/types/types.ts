@@ -105,6 +105,7 @@ export interface IMediaEpisode {
 export interface IEpisodeServer {
   name: string;
   url: string;
+  type: string;
 }
 
 export interface IVideo {
@@ -149,6 +150,7 @@ export enum StreamingServers {
   StreamHub = "streamhub",
   StreamWish = "streamwish",
   VidMoly = "vidmoly",
+  streamlare = "streamlare",
 }
 
 export enum MediaStatus {
