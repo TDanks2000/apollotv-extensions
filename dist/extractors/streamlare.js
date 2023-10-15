@@ -28,8 +28,7 @@ class StreamLare extends video_extractor_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             const res = yield this.client.get(videoUrl.href);
             const $ = (0, cheerio_1.load)(res.data);
-            const CSRF_TOKEN = (_a = $("head > meta:nth-child(3)")
-                .attr("content")) === null || _a === void 0 ? void 0 : _a.toString();
+            const CSRF_TOKEN = (_a = $("head > meta:nth-child(3)").attr("content")) === null || _a === void 0 ? void 0 : _a.toString();
             const videoId = videoUrl.href.match(this.regex)[1];
             if (videoId == undefined) {
                 throw new Error("Video id not matched!");

@@ -131,7 +131,7 @@ class Kickassanime extends types_1.MediaProvier {
                 const episodeBase = (subOrDub) => `${this.baseUrl}/api/show/${id}/episodes?lang=${subOrDub === "sub" ? "ja-JP" : "en-US"}`;
                 const { data: episodeData } = yield this.client.get(episodeBase(subOrDub));
                 if (episodeData.pages.length) {
-                    animeInfo.episodes = yield this.loadAllEps(episodeData, episodeBase(subOrDub));
+                    animeInfo.episodes = yield this.loadAllEps(episodeData, episodeBase(subOrDub), id);
                 }
             }
             catch (error) {
@@ -140,11 +140,13 @@ class Kickassanime extends types_1.MediaProvier {
             return animeInfo;
         });
     }
-    getMediaSources(episodeId, showId, server = "bird") {
+    getMediaSources(animeId, server = "bird") {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
         return __awaiter(this, void 0, void 0, function* () {
+            if (!animeId.includes("/"))
+                throw new Error("Invalid episode id, episode id must include <animeId>/<episodeId>");
             try {
-                const servers = yield this.getMediaServers(showId, episodeId);
+                const servers = yield this.getMediaServers(animeId);
                 const serverItem = servers.find((item) => item.name.toLowerCase() === server) || servers[0];
                 if (!serverItem)
                     throw new Error("Server not found");
@@ -258,9 +260,13 @@ class Kickassanime extends types_1.MediaProvier {
             }
         });
     }
-    getMediaServers(showId, episodeId) {
+    getMediaServers(animeId) {
         var _a, e_1, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
+            if (!animeId.includes("/"))
+                throw new Error("Invalid episode id, episode id must include <animeId>/<episodeId>");
+            const showId = animeId.split("/")[0];
+            const episodeId = animeId.split("/")[1];
             try {
                 const { data } = yield this.client.get(`${this.apiURL}/show/${showId}/episode/${episodeId}`, {
                     headers: {
@@ -293,7 +299,7 @@ class Kickassanime extends types_1.MediaProvier {
             }
         });
     }
-    loadAllEps(episode, url) {
+    loadAllEps(episode, url, animeId) {
         var _a, e_2, _b, _c, _d, e_3, _e, _f, _g, e_4, _h, _j;
         return __awaiter(this, void 0, void 0, function* () {
             const returnData = [];
@@ -304,7 +310,7 @@ class Kickassanime extends types_1.MediaProvier {
                         _c = _m.value;
                         _k = false;
                         const item = _c;
-                        returnData.push(this.formatEpisode(item));
+                        returnData.push(this.formatEpisode(item, animeId));
                     }
                 }
                 catch (e_2_1) { e_2 = { error: e_2_1 }; }
@@ -333,7 +339,7 @@ class Kickassanime extends types_1.MediaProvier {
                                 _j = _r.value;
                                 _p = false;
                                 const item = _j;
-                                returnData.push(this.formatEpisode(item));
+                                returnData.push(this.formatEpisode(item, animeId));
                             }
                         }
                         catch (e_4_1) { e_4 = { error: e_4_1 }; }
@@ -359,9 +365,9 @@ class Kickassanime extends types_1.MediaProvier {
             return returnData;
         });
     }
-    formatEpisode(episode) {
+    formatEpisode(episode, animeId) {
         return {
-            id: `ep-${episode.episode_number}-${episode.slug}`,
+            id: `${animeId}/ep-${episode.episode_number}-${episode.slug}`,
             title: episode.title,
             number: episode.episode_number,
             image: this.getImageUrl(episode.thumbnail),

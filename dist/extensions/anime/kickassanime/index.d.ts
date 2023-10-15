@@ -7,8 +7,8 @@ declare class Kickassanime extends MediaProvier {
     private headers;
     search(query: string, page?: number): Promise<ISearch<IMediaResult>>;
     getMediaInfo(id: string, subOrDub?: SubOrDub): Promise<IMediaInfo>;
-    getMediaSources(episodeId: `ep-${number}-${string}`, showId: string, server?: "duck" | "bird" | "vidstreaming"): Promise<ISource>;
-    getMediaServers(showId: string, episodeId: `ep-${number}-${string}`): Promise<IEpisodeServer[]>;
+    getMediaSources(animeId: string, server?: "duck" | "bird" | "vidstreaming"): Promise<ISource>;
+    getMediaServers(animeId: string): Promise<IEpisodeServer[]>;
     private getImageUrl;
     private loadAllEps;
     private formatEpisode;
