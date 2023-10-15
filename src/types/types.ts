@@ -105,7 +105,7 @@ export interface IMediaEpisode {
 export interface IEpisodeServer {
   name: string;
   url: string;
-  type: string;
+  type?: string;
 }
 
 export interface IVideo {

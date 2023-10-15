@@ -99,7 +99,7 @@ class Kickassanime extends MediaProvier {
       const { data: episodeData } = await this.client.get<Episode>(episodeBase(subOrDub));
 
       if (episodeData.pages.length) {
-        animeInfo.episodes = await this.loadAllEps(episodeData, episodeBase(subOrDub));
+        animeInfo.episodes = await this.loadAllEps(episodeData, episodeBase(subOrDub), id);
       }
     } catch (error) {
       throw new Error((error as Error).message);
@@ -109,12 +109,14 @@ class Kickassanime extends MediaProvier {
   }
 
   override async getMediaSources(
-    episodeId: `ep-${number}-${string}`,
-    showId: string,
+    animeId: string,
     server: "duck" | "bird" | "vidstreaming" = "bird"
   ): Promise<ISource> {
+    if (!animeId.includes("/"))
+      throw new Error("Invalid episode id, episode id must include <animeId>/<episodeId>");
+
     try {
-      const servers = await this.getMediaServers(showId, episodeId);
+      const servers = await this.getMediaServers(animeId);
 
       const serverItem = servers.find((item) => item.name.toLowerCase() === server) || servers[0];
 
@@ -260,10 +262,13 @@ class Kickassanime extends MediaProvier {
     }
   }
 
-  override async getMediaServers(
-    showId: string,
-    episodeId: `ep-${number}-${string}`
-  ): Promise<IEpisodeServer[]> {
+  override async getMediaServers(animeId: string): Promise<IEpisodeServer[]> {
+    if (!animeId.includes("/"))
+      throw new Error("Invalid episode id, episode id must include <animeId>/<episodeId>");
+
+    const showId = animeId.split("/")[0];
+    const episodeId = animeId.split("/")[1]!;
+
     try {
       const { data } = await this.client.get<EpisodeInfo>(
         `${this.apiURL}/show/${showId}/episode/${episodeId}`,
@@ -299,13 +304,17 @@ class Kickassanime extends MediaProvier {
     }
   };
 
-  private async loadAllEps(episode: Episode, url: string): Promise<IMediaEpisode[]> {
+  private async loadAllEps(
+    episode: Episode,
+    url: string,
+    animeId: string
+  ): Promise<IMediaEpisode[]> {
     const returnData: IMediaEpisode[] = [];
     const promises = [];
 
     try {
       for await (const item of episode.result) {
-        returnData.push(this.formatEpisode(item));
+        returnData.push(this.formatEpisode(item, animeId));
       }
 
       if (episode.pages.length === 0) return returnData;
@@ -320,7 +329,7 @@ class Kickassanime extends MediaProvier {
       for await (const result of results) {
         const { data } = result;
         for await (const item of data.result) {
-          returnData.push(this.formatEpisode(item));
+          returnData.push(this.formatEpisode(item, animeId));
         }
       }
     } catch (error) {
@@ -330,9 +339,9 @@ class Kickassanime extends MediaProvier {
     return returnData;
   }
 
-  private formatEpisode(episode: EpisodeResult): IMediaEpisode {
+  private formatEpisode(episode: EpisodeResult, animeId: string): IMediaEpisode {
     return {
-      id: `ep-${episode.episode_number}-${episode.slug}`,
+      id: `${animeId}/ep-${episode.episode_number}-${episode.slug}`,
       title: episode.title,
       number: episode.episode_number,
       image: this.getImageUrl(episode.thumbnail),

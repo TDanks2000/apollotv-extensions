@@ -99,6 +99,7 @@ class AllAnime extends MediaProvier {
       romaji: anime?.name!,
       userPreferred: anime?.name,
     };
+    animeInfo.url = `${this.baseUrl}/${animeId}`;
     animeInfo.genres = anime?.genres;
     animeInfo.totalEpisodes = parseInt(anime?.episodeCount!);
     animeInfo.image = anime?.thumbnail;
@@ -132,10 +133,12 @@ class AllAnime extends MediaProvier {
       this.episodeInfoHash
     );
 
-    console.log(episodeInfo);
-
     animeInfo.episodes = [];
+
     if (episodeInfo?.data?.episodeInfos?.length! >= 0) {
+      animeInfo.hasDub = episodeInfo?.data?.episodeInfos[0].vidInforsdub !== null;
+      animeInfo.hasSub = episodeInfo?.data?.episodeInfos[0].vidInforssub !== null;
+
       for await (const episode of episodeInfo?.data?.episodeInfos!) {
         const images = episode.thumbnails?.map((image) =>
           !image?.includes("http") ? `${this.ytAnimeCoversHost}${image}` : image
@@ -161,11 +164,13 @@ class AllAnime extends MediaProvier {
 
   async getMediaSources(
     episodeId: string,
-    server: StreamingServers | AllAnimeServer = StreamingServers.VidStreaming,
+    server: StreamingServers | "default" = "default",
     dub: boolean = false
   ): Promise<ISource> {
     if (!episodeId || !episodeId.includes("/"))
-      throw new Error("Invalid episode id, episode id must include <animeId>/<episodeNumber>");
+      throw new Error(
+        `Please provide a valid episode ID in the format "<animeId>/<episodeNumber>."`
+      );
 
     try {
       const servers = await this.getMediaServers(episodeId, dub);
@@ -223,7 +228,9 @@ class AllAnime extends MediaProvier {
 
   async getMediaServers(episodeId: string, dub: boolean = false): Promise<IEpisodeServer[]> {
     if (!episodeId.includes("/"))
-      throw new Error("Invalid episode id, episode id must include <animeId>/<episodeNumber>");
+      throw new Error(
+        `Please provide a valid episode ID in the format "<animeId>/<episodeNumber>."`
+      );
 
     const videoServers: IEpisodeServer[] = [];
 
@@ -281,18 +288,9 @@ class AllAnime extends MediaProvier {
       });
       return response.data;
     } catch (error) {
-      console.error("Error making GraphQL query:", (error as Error).message);
-      return null;
+      throw new Error(`Error making GraphQL query:, ${(error as Error).message}`);
     }
   }
 }
 
 export default AllAnime;
-
-(async () => {
-  const allAnime = new AllAnime();
-  const info = await allAnime.getMediaInfo("ZxB3cadtyvKpa6n4B");
-  const servers = await allAnime.getMediaSources(info.episodes![0]?.id!);
-
-  console.log(servers);
-})();

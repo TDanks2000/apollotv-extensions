@@ -28,6 +28,7 @@ import {
 import * as metadata from "./extension.json";
 import { AnilistManga } from "./manga";
 import AnimePahe from "../../anime/animepahe";
+import AllAnime from "../../anime/allanime";
 
 /**
  * Most of this code is from @consumet i have just modifed it a little
