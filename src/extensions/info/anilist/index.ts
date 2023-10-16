@@ -570,11 +570,7 @@ class Anilist extends MediaProvier {
       animeInfo.episodes = animeInfo.episodes?.map((episode: IMediaEpisode) => {
         if (!episode.image) episode.image = animeInfo.image;
 
-        if (
-          fetchFiller &&
-          fillerEpisodes?.length > 0 &&
-          fillerEpisodes?.length >= animeInfo.episodes!.length
-        ) {
+        if (fetchFiller && fillerEpisodes?.length > 0) {
           if (fillerEpisodes[episode.number! - 1])
             episode.isFiller = new Boolean(
               fillerEpisodes[episode.number! - 1]["filler-bool"]
@@ -1013,3 +1009,9 @@ class Anilist extends MediaProvier {
 }
 
 export default Anilist;
+
+(async () => {
+  const anilist = new Anilist();
+  const data = await anilist.getMediaInfo("21", true, true);
+  console.log(data);
+})();

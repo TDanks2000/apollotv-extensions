@@ -784,9 +784,7 @@ class Anilist extends types_1.MediaProvier {
                 animeInfo.episodes = (_104 = animeInfo.episodes) === null || _104 === void 0 ? void 0 : _104.map((episode) => {
                     if (!episode.image)
                         episode.image = animeInfo.image;
-                    if (fetchFiller &&
-                        (fillerEpisodes === null || fillerEpisodes === void 0 ? void 0 : fillerEpisodes.length) > 0 &&
-                        (fillerEpisodes === null || fillerEpisodes === void 0 ? void 0 : fillerEpisodes.length) >= animeInfo.episodes.length) {
+                    if (fetchFiller && (fillerEpisodes === null || fillerEpisodes === void 0 ? void 0 : fillerEpisodes.length) > 0) {
                         if (fillerEpisodes[episode.number - 1])
                             episode.isFiller = new Boolean(fillerEpisodes[episode.number - 1]["filler-bool"]).valueOf();
                     }
@@ -822,3 +820,8 @@ class Anilist extends types_1.MediaProvier {
     }
 }
 exports.default = Anilist;
+(() => __awaiter(void 0, void 0, void 0, function* () {
+    const anilist = new Anilist();
+    const data = yield anilist.getMediaInfo("21", true, true);
+    console.log(data);
+}))();
