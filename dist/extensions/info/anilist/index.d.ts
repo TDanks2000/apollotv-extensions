@@ -16,7 +16,7 @@ declare class Anilist extends MediaProvier {
     constructor(provider?: MediaProvier, animapped_api_key?: string);
     search(query: string, page?: number, perPage?: number): Promise<ISearch<IMediaResult>>;
     advancedSearch({ query, type, page, perPage, format, sort, genres, id, year, status, season, }: AdvancedSearch): Promise<ISearch<IMediaResult>>;
-    getMediaInfo(id: string, dub?: boolean): Promise<IMediaInfo>;
+    getMediaInfo(id: string, dub?: boolean, fetchFiller?: boolean): Promise<IMediaInfo>;
     getMediaSources(episodeId: string, ...args: any): Promise<ISource>;
     getMediaServers(episodeId: string): Promise<IEpisodeServer[]>;
     private fetchDefaultEpisodeList;
