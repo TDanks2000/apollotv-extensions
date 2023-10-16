@@ -1009,9 +1009,3 @@ class Anilist extends MediaProvier {
 }
 
 export default Anilist;
-
-(async () => {
-  const anilist = new Anilist();
-  const data = await anilist.getMediaInfo("21", true, true);
-  console.log(data);
-})();

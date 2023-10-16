@@ -820,8 +820,3 @@ class Anilist extends types_1.MediaProvier {
     }
 }
 exports.default = Anilist;
-(() => __awaiter(void 0, void 0, void 0, function* () {
-    const anilist = new Anilist();
-    const data = yield anilist.getMediaInfo("21", true, true);
-    console.log(data);
-}))();
