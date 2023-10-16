@@ -281,7 +281,7 @@ class Anilist extends MediaProvier {
     }
   }
 
-  async getMediaInfo(id: string, dub: boolean = false) {
+  async getMediaInfo(id: string, dub: boolean = false, fetchFiller: boolean = false) {
     const animeInfo: IMediaInfo = {
       id: id,
       title: "",
@@ -295,6 +295,7 @@ class Anilist extends MediaProvier {
       query: anilistMediaDetailQuery(id),
     };
 
+    let fillerEpisodes: { number: string; "filler-bool": boolean }[];
     try {
       let { data, status } = await axios.post(this.anilistGraphqlUrl, options, {
         validateStatus: () => true,
@@ -548,6 +549,37 @@ class Anilist extends MediaProvier {
 
       animeInfo.episodes = animeInfo.episodes?.map((episode: IMediaEpisode) => {
         if (!episode.image) episode.image = animeInfo.image;
+
+        return episode;
+      });
+
+      if (fetchFiller) {
+        const { data: fillerData } = await this.client.get(
+          `https://raw.githubusercontent.com/TobyBridle/mal-id-filler-list/main/fillers/${animeInfo.malId}.json`,
+          { validateStatus: () => true }
+        );
+
+        if (!fillerData.toString().startsWith("404")) {
+          fillerEpisodes = [];
+          fillerEpisodes?.push(
+            ...(fillerData.episodes as { number: string; "filler-bool": boolean }[])
+          );
+        }
+      }
+
+      animeInfo.episodes = animeInfo.episodes?.map((episode: IMediaEpisode) => {
+        if (!episode.image) episode.image = animeInfo.image;
+
+        if (
+          fetchFiller &&
+          fillerEpisodes?.length > 0 &&
+          fillerEpisodes?.length >= animeInfo.episodes!.length
+        ) {
+          if (fillerEpisodes[episode.number! - 1])
+            episode.isFiller = new Boolean(
+              fillerEpisodes[episode.number! - 1]["filler-bool"]
+            ).valueOf();
+        }
 
         return episode;
       });
