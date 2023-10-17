@@ -116,7 +116,7 @@ class AllAnime extends types_1.MediaProvier {
     }
     getMediaInfo(animeId, dub = false, ...args) {
         var _a, e_2, _b, _c;
-        var _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
+        var _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y;
         return __awaiter(this, void 0, void 0, function* () {
             const variables = `{"_id":"${animeId}"}`;
             const animeInfo = {
@@ -165,22 +165,28 @@ class AllAnime extends types_1.MediaProvier {
                 const episodeInfo = yield this.graphqlQuery(episodeVars, this.episodeInfoHash);
                 animeInfo.episodes = [];
                 if (((_h = (_g = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _g === void 0 ? void 0 : _g.episodeInfos) === null || _h === void 0 ? void 0 : _h.length) >= 0) {
-                    animeInfo.hasDub = ((_j = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _j === void 0 ? void 0 : _j.episodeInfos[0].vidInforsdub) !== null;
-                    animeInfo.hasSub = ((_k = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _k === void 0 ? void 0 : _k.episodeInfos[0].vidInforssub) !== null;
+                    animeInfo.hasDub =
+                        ((_k = (_j = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _j === void 0 ? void 0 : _j.episodeInfos) === null || _k === void 0 ? void 0 : _k.length) >= 1
+                            ? ((_m = (_l = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _l === void 0 ? void 0 : _l.episodeInfos[0]) === null || _m === void 0 ? void 0 : _m.vidInforsdub) !== null
+                            : false;
+                    animeInfo.hasSub =
+                        ((_p = (_o = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _o === void 0 ? void 0 : _o.episodeInfos) === null || _p === void 0 ? void 0 : _p.length) >= 1
+                            ? ((_r = (_q = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _q === void 0 ? void 0 : _q.episodeInfos[0]) === null || _r === void 0 ? void 0 : _r.vidInforssub) !== null
+                            : false;
                     try {
-                        for (var _t = true, _u = __asyncValues((_l = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _l === void 0 ? void 0 : _l.episodeInfos), _v; _v = yield _u.next(), _a = _v.done, !_a; _t = true) {
-                            _c = _v.value;
-                            _t = false;
+                        for (var _z = true, _0 = __asyncValues((_s = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _s === void 0 ? void 0 : _s.episodeInfos), _1; _1 = yield _0.next(), _a = _1.done, !_a; _z = true) {
+                            _c = _1.value;
+                            _z = false;
                             const episode = _c;
-                            const images = (_m = episode.thumbnails) === null || _m === void 0 ? void 0 : _m.map((image) => !(image === null || image === void 0 ? void 0 : image.includes("http")) ? `${this.ytAnimeCoversHost}${image}` : image);
-                            (_o = animeInfo.episodes) === null || _o === void 0 ? void 0 : _o.push({
+                            const images = (_t = episode.thumbnails) === null || _t === void 0 ? void 0 : _t.map((image) => !(image === null || image === void 0 ? void 0 : image.includes("http")) ? `${this.ytAnimeCoversHost}${image}` : image);
+                            (_u = animeInfo.episodes) === null || _u === void 0 ? void 0 : _u.push({
                                 id: `${animeId}/${episode.episodeIdNum}`,
                                 title: episode.notes,
                                 number: episode.episodeIdNum,
                                 image: images[0],
                                 releaseDate: dub === true
-                                    ? (_q = (_p = episode.uploadDates) === null || _p === void 0 ? void 0 : _p.dub) === null || _q === void 0 ? void 0 : _q.toString()
-                                    : (_s = (_r = episode.uploadDates) === null || _r === void 0 ? void 0 : _r.sub) === null || _s === void 0 ? void 0 : _s.toString(),
+                                    ? (_w = (_v = episode.uploadDates) === null || _v === void 0 ? void 0 : _v.dub) === null || _w === void 0 ? void 0 : _w.toString()
+                                    : (_y = (_x = episode.uploadDates) === null || _x === void 0 ? void 0 : _x.sub) === null || _y === void 0 ? void 0 : _y.toString(),
                                 hasDub: episode.vidInforsdub !== null,
                                 haSDub: episode.vidInforssub !== null,
                             });
@@ -189,7 +195,7 @@ class AllAnime extends types_1.MediaProvier {
                     catch (e_2_1) { e_2 = { error: e_2_1 }; }
                     finally {
                         try {
-                            if (!_t && !_a && (_b = _u.return)) yield _b.call(_u);
+                            if (!_z && !_a && (_b = _0.return)) yield _b.call(_0);
                         }
                         finally { if (e_2) throw e_2.error; }
                     }

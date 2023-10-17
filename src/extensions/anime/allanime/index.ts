@@ -140,8 +140,14 @@ class AllAnime extends MediaProvier {
       animeInfo.episodes = [];
 
       if (episodeInfo?.data?.episodeInfos?.length! >= 0) {
-        animeInfo.hasDub = episodeInfo?.data?.episodeInfos[0].vidInforsdub !== null;
-        animeInfo.hasSub = episodeInfo?.data?.episodeInfos[0].vidInforssub !== null;
+        animeInfo.hasDub =
+          episodeInfo?.data?.episodeInfos?.length! >= 1
+            ? episodeInfo?.data?.episodeInfos[0]?.vidInforsdub !== null
+            : false;
+        animeInfo.hasSub =
+          episodeInfo?.data?.episodeInfos?.length! >= 1
+            ? episodeInfo?.data?.episodeInfos[0]?.vidInforssub !== null
+            : false;
 
         for await (const episode of episodeInfo?.data?.episodeInfos!) {
           const images = episode.thumbnails?.map((image) =>
