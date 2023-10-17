@@ -110,15 +110,17 @@ class Kickassanime extends MediaProvier {
 
   override async getMediaSources(
     animeId: string,
-    server: "duck" | "bird" | "vidstreaming" = "bird"
+    server: "duck" | "bird" | "vidstreaming" = "vidstreaming"
   ): Promise<ISource> {
     if (!animeId.includes("/"))
       throw new Error("Invalid episode id, episode id must include <animeId>/<episodeId>");
+    const realServerName = server === "vidstreaming" ? "vid" : server;
 
     try {
       const servers = await this.getMediaServers(animeId);
 
-      const serverItem = servers.find((item) => item.name.toLowerCase() === server) || servers[0];
+      const serverItem =
+        servers.find((item) => item.name.toLowerCase() === realServerName) || servers[0];
 
       if (!serverItem) throw new Error("Server not found");
 
@@ -134,6 +136,7 @@ class Kickassanime extends MediaProvier {
       const { data: playerHTML } = await this.client.get(url.toString(), {
         headers: {
           "User-Agent": USER_AGENT,
+          ...this.headers,
         },
       });
 
@@ -158,6 +161,7 @@ class Kickassanime extends MediaProvier {
         );
         key = duckKey;
       }
+      key = key.trim();
 
       const signatureItems: any = {
         SIG: playerHTML.split("signature:")[1].split("'")[1].trim(),
@@ -275,6 +279,7 @@ class Kickassanime extends MediaProvier {
         {
           headers: {
             "User-Agent": USER_AGENT,
+            ...this.headers,
           },
         }
       );
@@ -355,3 +360,10 @@ export default Kickassanime;
 /**
  * THANK YOU ENIMAX FOR FIGURING MOST OF THIS OUT
  */
+
+// (async () => {
+//   const ext = new Kickassanime();
+//   // const search = await ext.search("cowboy bebop");
+//   // const info = await ext.getMediaInfo(search.results[0].id);
+//   const sources = await ext.getMediaSources("aoshi-jiuchong-tian-4a3c/ep-1-194a6c");
+// })();

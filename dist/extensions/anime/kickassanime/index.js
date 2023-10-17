@@ -140,14 +140,15 @@ class Kickassanime extends types_1.MediaProvier {
             return animeInfo;
         });
     }
-    getMediaSources(animeId, server = "bird") {
+    getMediaSources(animeId, server = "vidstreaming") {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
         return __awaiter(this, void 0, void 0, function* () {
             if (!animeId.includes("/"))
                 throw new Error("Invalid episode id, episode id must include <animeId>/<episodeId>");
+            const realServerName = server === "vidstreaming" ? "vid" : server;
             try {
                 const servers = yield this.getMediaServers(animeId);
-                const serverItem = servers.find((item) => item.name.toLowerCase() === server) || servers[0];
+                const serverItem = servers.find((item) => item.name.toLowerCase() === realServerName) || servers[0];
                 if (!serverItem)
                     throw new Error("Server not found");
                 const name = serverItem.name.toLowerCase();
@@ -157,9 +158,7 @@ class Kickassanime extends types_1.MediaProvier {
                 let { data: order } = yield this.client.get("https://raw.githubusercontent.com/enimax-anime/gogo/main/KAA.json");
                 order = order[name];
                 const { data: playerHTML } = yield this.client.get(url.toString(), {
-                    headers: {
-                        "User-Agent": utils_1.USER_AGENT,
-                    },
+                    headers: Object.assign({ "User-Agent": utils_1.USER_AGENT }, this.headers),
                 });
                 const cid = playerHTML.split("cid:")[1].split("'")[1].trim();
                 const metaData = crypto_js_1.default.enc.Hex.parse(cid).toString(crypto_js_1.default.enc.Utf8);
@@ -178,6 +177,7 @@ class Kickassanime extends types_1.MediaProvier {
                     const { data: duckKey } = yield this.client.get(`https://raw.githubusercontent.com/enimax-anime/kaas/duck/key.txt`);
                     key = duckKey;
                 }
+                key = key.trim();
                 const signatureItems = {
                     SIG: playerHTML.split("signature:")[1].split("'")[1].trim(),
                     USERAGENT: utils_1.USER_AGENT,
@@ -269,9 +269,7 @@ class Kickassanime extends types_1.MediaProvier {
             const episodeId = animeId.split("/")[1];
             try {
                 const { data } = yield this.client.get(`${this.apiURL}/show/${showId}/episode/${episodeId}`, {
-                    headers: {
-                        "User-Agent": utils_1.USER_AGENT,
-                    },
+                    headers: Object.assign({ "User-Agent": utils_1.USER_AGENT }, this.headers),
                 });
                 const servers = [];
                 try {
@@ -379,3 +377,9 @@ exports.default = Kickassanime;
 /**
  * THANK YOU ENIMAX FOR FIGURING MOST OF THIS OUT
  */
+// (async () => {
+//   const ext = new Kickassanime();
+//   // const search = await ext.search("cowboy bebop");
+//   // const info = await ext.getMediaInfo(search.results[0].id);
+//   const sources = await ext.getMediaSources("aoshi-jiuchong-tian-4a3c/ep-1-194a6c");
+// })();
