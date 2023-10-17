@@ -1,0 +1,18 @@
+{
+  "type": "manga",
+  "name": "mangadex",
+  "version": "0.0.1",
+  "image": "https://pbs.twimg.com/profile_images/1391016345714757632/xbt_jW78_400x400.jpg",
+  "author": {
+    "name": "Tommy",
+    "image": null,
+    "link": null
+  },
+  "code": {
+    "main": "index",
+    "utils": {
+      "mainURL": "https://mangadex.org",
+      "apiURL": "https://api.mangadex.org"
+    }
+  }
+}

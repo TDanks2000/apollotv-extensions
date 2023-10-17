@@ -1,0 +1,18 @@
+{
+  "type": "manga",
+  "name": "mangakomi",
+  "version": "0.0.1",
+  "image": "https://mangakomi.io/wp-content/uploads/2019/12/cropped-1ZzMnJA2_400x400.jpg",
+  "author": {
+    "name": "Tommy",
+    "image": null,
+    "link": null
+  },
+  "code": {
+    "main": "index",
+    "utils": {
+      "mainURL": "https://mangakomi.io",
+      "apiURL": "https://mangakomi.io/wp-admin/admin-ajax.php"
+    }
+  }
+}

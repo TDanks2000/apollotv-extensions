@@ -1,0 +1,18 @@
+{
+  "type": "manga",
+  "name": "comick",
+  "version": "0.0.1",
+  "image": "https://comick.app/static/icons/unicorn-256_maskable.png",
+  "author": {
+    "name": "Tommy",
+    "image": null,
+    "link": null
+  },
+  "code": {
+    "main": "index",
+    "utils": {
+      "mainURL": "https://comick.app",
+      "apiURL": "https://api.comick.app"
+    }
+  }
+}
