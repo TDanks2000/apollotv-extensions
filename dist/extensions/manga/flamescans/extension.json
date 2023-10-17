@@ -1,0 +1,18 @@
+{
+    "type": "manga",
+    "name": "flamescans",
+    "version": "0.0.1",
+    "image": "https://i.imgur.com/Nt1MW3H.png",
+    "author": {
+        "name": "Tommy",
+        "image": null,
+        "link": null
+    },
+    "code": {
+        "main": "index",
+        "utils": {
+            "mainURL": "https://flamescans.org",
+            "apiURL": null
+        }
+    }
+}

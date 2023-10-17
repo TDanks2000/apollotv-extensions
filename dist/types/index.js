@@ -29,3 +29,4 @@ exports.ReadableParser = readable_parser_1.default;
 const video_extractor_1 = __importDefault(require("./video-extractor"));
 exports.VideoExtractor = video_extractor_1.default;
 __exportStar(require("./types"), exports);
+__exportStar(require("./EXTENSION_LIST"), exports);

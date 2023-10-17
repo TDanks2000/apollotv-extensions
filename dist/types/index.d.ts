@@ -4,4 +4,5 @@ import MediaProvier from "./media-parser";
 import ReadableParser from "./readable-parser";
 import VideoExtractor from "./video-extractor";
 export * from "./types";
+export * from "./EXTENSION_LIST";
 export { BaseProvider, BaseParser, MediaProvier, VideoExtractor, ReadableParser };
