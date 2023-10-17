@@ -8,7 +8,7 @@ export const EXTENSION_LIST: EXTENSION_LIST_TYPE = {
   ANIME: [
     new ANIME.Gogoanime(),
     new ANIME.AnimePahe(),
-    // new ANIME.AllAnime()
+    new ANIME.AllAnime()
   ],
   MANGA: [
     new MANGA.ComicK(),

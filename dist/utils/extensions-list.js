@@ -9,7 +9,7 @@ exports.EXTENSION_LIST = {
     ANIME: [
         new extensions_1.ANIME.Gogoanime(),
         new extensions_1.ANIME.AnimePahe(),
-        // new ANIME.AllAnime()
+        new extensions_1.ANIME.AllAnime()
     ],
     MANGA: [
         new extensions_1.MANGA.ComicK(),
