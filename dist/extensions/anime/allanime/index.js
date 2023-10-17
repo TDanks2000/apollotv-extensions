@@ -75,38 +75,43 @@ class AllAnime extends types_1.MediaProvier {
                 results: [],
             };
             const variables = `{"search":{"query":"${query}"},"translationType":"sub"}`;
-            const data = yield this.graphqlQuery(variables, this.searchHash);
-            const edges = (_e = (_d = data === null || data === void 0 ? void 0 : data.data) === null || _d === void 0 ? void 0 : _d.shows) === null || _e === void 0 ? void 0 : _e.edges;
-            if (!edges)
-                return searchResult;
             try {
-                for (var _g = true, edges_1 = __asyncValues(edges), edges_1_1; edges_1_1 = yield edges_1.next(), _a = edges_1_1.done, !_a; _g = true) {
-                    _c = edges_1_1.value;
-                    _g = false;
-                    const item = _c;
-                    searchResult.results.push({
-                        id: item._id,
-                        title: {
-                            english: item.englishName,
-                            native: item.nativeName,
-                            romaji: item.name,
-                            userPreferred: item.name,
-                        },
-                        image: item.thumbnail,
-                        rating: item.score,
-                        releaseDate: (_f = item.airedStart.year) === null || _f === void 0 ? void 0 : _f.toString(),
-                        type: item.type,
-                    });
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
+                const data = yield this.graphqlQuery(variables, this.searchHash);
+                const edges = (_e = (_d = data === null || data === void 0 ? void 0 : data.data) === null || _d === void 0 ? void 0 : _d.shows) === null || _e === void 0 ? void 0 : _e.edges;
+                if (!edges)
+                    return searchResult;
                 try {
-                    if (!_g && !_a && (_b = edges_1.return)) yield _b.call(edges_1);
+                    for (var _g = true, edges_1 = __asyncValues(edges), edges_1_1; edges_1_1 = yield edges_1.next(), _a = edges_1_1.done, !_a; _g = true) {
+                        _c = edges_1_1.value;
+                        _g = false;
+                        const item = _c;
+                        searchResult.results.push({
+                            id: item._id,
+                            title: {
+                                english: item.englishName,
+                                native: item.nativeName,
+                                romaji: item.name,
+                                userPreferred: item.name,
+                            },
+                            image: item.thumbnail,
+                            rating: item.score,
+                            releaseDate: (_f = item.airedStart.year) === null || _f === void 0 ? void 0 : _f.toString(),
+                            type: item.type,
+                        });
+                    }
                 }
-                finally { if (e_1) throw e_1.error; }
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (!_g && !_a && (_b = edges_1.return)) yield _b.call(edges_1);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                }
+                return searchResult;
             }
-            return searchResult;
+            catch (error) {
+                throw new Error(`AllAnime Search Error: ${error.message}`);
+            }
         });
     }
     getMediaInfo(animeId, dub = false, ...args) {
@@ -121,74 +126,79 @@ class AllAnime extends types_1.MediaProvier {
                 genres: [],
                 totalEpisodes: 0,
             };
-            const data = yield this.graphqlQuery(variables, this.idHash);
-            const anime = (_d = data === null || data === void 0 ? void 0 : data.data) === null || _d === void 0 ? void 0 : _d.show;
-            animeInfo.title = {
-                english: anime === null || anime === void 0 ? void 0 : anime.englishName,
-                native: anime === null || anime === void 0 ? void 0 : anime.nativeName,
-                romaji: anime === null || anime === void 0 ? void 0 : anime.name,
-                userPreferred: anime === null || anime === void 0 ? void 0 : anime.name,
-            };
-            animeInfo.url = `${this.baseUrl}/${animeId}`;
-            animeInfo.genres = anime === null || anime === void 0 ? void 0 : anime.genres;
-            animeInfo.totalEpisodes = parseInt(anime === null || anime === void 0 ? void 0 : anime.episodeCount);
-            animeInfo.image = anime === null || anime === void 0 ? void 0 : anime.thumbnail;
-            animeInfo.cover = anime === null || anime === void 0 ? void 0 : anime.banner;
-            animeInfo.rating = anime === null || anime === void 0 ? void 0 : anime.score;
-            animeInfo.releaseDate = (_f = (_e = anime === null || anime === void 0 ? void 0 : anime.airedStart) === null || _e === void 0 ? void 0 : _e.year) === null || _f === void 0 ? void 0 : _f.toString();
-            animeInfo.type = anime === null || anime === void 0 ? void 0 : anime.type;
-            animeInfo.description = anime === null || anime === void 0 ? void 0 : anime.description;
-            switch (anime === null || anime === void 0 ? void 0 : anime.status) {
-                case "Ongoing":
-                    animeInfo.status = types_1.MediaStatus.ONGOING;
-                    break;
-                case "Completed":
-                    animeInfo.status = types_1.MediaStatus.COMPLETED;
-                    break;
-                case "Upcoming":
-                    animeInfo.status = types_1.MediaStatus.NOT_YET_AIRED;
-                    break;
-                default:
-                    animeInfo.status = types_1.MediaStatus.UNKNOWN;
-                    break;
-            }
-            animeInfo.endDate = anime === null || anime === void 0 ? void 0 : anime.airedEnd;
-            animeInfo.startDate = anime === null || anime === void 0 ? void 0 : anime.airedStart;
-            const epCount = dub === true ? anime === null || anime === void 0 ? void 0 : anime.availableEpisodes.dub : anime === null || anime === void 0 ? void 0 : anime.availableEpisodes.sub;
-            const episodeVars = `{"showId":"${animeId}","episodeNumStart":0,"episodeNumEnd":${epCount}}`;
-            const episodeInfo = yield this.graphqlQuery(episodeVars, this.episodeInfoHash);
-            animeInfo.episodes = [];
-            if (((_h = (_g = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _g === void 0 ? void 0 : _g.episodeInfos) === null || _h === void 0 ? void 0 : _h.length) >= 0) {
-                animeInfo.hasDub = ((_j = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _j === void 0 ? void 0 : _j.episodeInfos[0].vidInforsdub) !== null;
-                animeInfo.hasSub = ((_k = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _k === void 0 ? void 0 : _k.episodeInfos[0].vidInforssub) !== null;
-                try {
-                    for (var _t = true, _u = __asyncValues((_l = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _l === void 0 ? void 0 : _l.episodeInfos), _v; _v = yield _u.next(), _a = _v.done, !_a; _t = true) {
-                        _c = _v.value;
-                        _t = false;
-                        const episode = _c;
-                        const images = (_m = episode.thumbnails) === null || _m === void 0 ? void 0 : _m.map((image) => !(image === null || image === void 0 ? void 0 : image.includes("http")) ? `${this.ytAnimeCoversHost}${image}` : image);
-                        (_o = animeInfo.episodes) === null || _o === void 0 ? void 0 : _o.push({
-                            id: `${animeId}/${episode.episodeIdNum}`,
-                            title: episode.notes,
-                            number: episode.episodeIdNum,
-                            image: images[0],
-                            releaseDate: dub === true
-                                ? (_q = (_p = episode.uploadDates) === null || _p === void 0 ? void 0 : _p.dub) === null || _q === void 0 ? void 0 : _q.toString()
-                                : (_s = (_r = episode.uploadDates) === null || _r === void 0 ? void 0 : _r.sub) === null || _s === void 0 ? void 0 : _s.toString(),
-                            hasDub: episode.vidInforsdub !== null,
-                            haSDub: episode.vidInforssub !== null,
-                        });
-                    }
+            try {
+                const data = yield this.graphqlQuery(variables, this.idHash);
+                const anime = (_d = data === null || data === void 0 ? void 0 : data.data) === null || _d === void 0 ? void 0 : _d.show;
+                animeInfo.title = {
+                    english: anime === null || anime === void 0 ? void 0 : anime.englishName,
+                    native: anime === null || anime === void 0 ? void 0 : anime.nativeName,
+                    romaji: anime === null || anime === void 0 ? void 0 : anime.name,
+                    userPreferred: anime === null || anime === void 0 ? void 0 : anime.name,
+                };
+                animeInfo.url = `${this.baseUrl}/${animeId}`;
+                animeInfo.genres = anime === null || anime === void 0 ? void 0 : anime.genres;
+                animeInfo.totalEpisodes = parseInt(anime === null || anime === void 0 ? void 0 : anime.episodeCount);
+                animeInfo.image = anime === null || anime === void 0 ? void 0 : anime.thumbnail;
+                animeInfo.cover = anime === null || anime === void 0 ? void 0 : anime.banner;
+                animeInfo.rating = anime === null || anime === void 0 ? void 0 : anime.score;
+                animeInfo.releaseDate = (_f = (_e = anime === null || anime === void 0 ? void 0 : anime.airedStart) === null || _e === void 0 ? void 0 : _e.year) === null || _f === void 0 ? void 0 : _f.toString();
+                animeInfo.type = anime === null || anime === void 0 ? void 0 : anime.type;
+                animeInfo.description = anime === null || anime === void 0 ? void 0 : anime.description;
+                switch (anime === null || anime === void 0 ? void 0 : anime.status) {
+                    case "Ongoing":
+                        animeInfo.status = types_1.MediaStatus.ONGOING;
+                        break;
+                    case "Completed":
+                        animeInfo.status = types_1.MediaStatus.COMPLETED;
+                        break;
+                    case "Upcoming":
+                        animeInfo.status = types_1.MediaStatus.NOT_YET_AIRED;
+                        break;
+                    default:
+                        animeInfo.status = types_1.MediaStatus.UNKNOWN;
+                        break;
                 }
-                catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                finally {
+                animeInfo.endDate = anime === null || anime === void 0 ? void 0 : anime.airedEnd;
+                animeInfo.startDate = anime === null || anime === void 0 ? void 0 : anime.airedStart;
+                const epCount = dub === true ? anime === null || anime === void 0 ? void 0 : anime.availableEpisodes.dub : anime === null || anime === void 0 ? void 0 : anime.availableEpisodes.sub;
+                const episodeVars = `{"showId":"${animeId}","episodeNumStart":0,"episodeNumEnd":${epCount}}`;
+                const episodeInfo = yield this.graphqlQuery(episodeVars, this.episodeInfoHash);
+                animeInfo.episodes = [];
+                if (((_h = (_g = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _g === void 0 ? void 0 : _g.episodeInfos) === null || _h === void 0 ? void 0 : _h.length) >= 0) {
+                    animeInfo.hasDub = ((_j = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _j === void 0 ? void 0 : _j.episodeInfos[0].vidInforsdub) !== null;
+                    animeInfo.hasSub = ((_k = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _k === void 0 ? void 0 : _k.episodeInfos[0].vidInforssub) !== null;
                     try {
-                        if (!_t && !_a && (_b = _u.return)) yield _b.call(_u);
+                        for (var _t = true, _u = __asyncValues((_l = episodeInfo === null || episodeInfo === void 0 ? void 0 : episodeInfo.data) === null || _l === void 0 ? void 0 : _l.episodeInfos), _v; _v = yield _u.next(), _a = _v.done, !_a; _t = true) {
+                            _c = _v.value;
+                            _t = false;
+                            const episode = _c;
+                            const images = (_m = episode.thumbnails) === null || _m === void 0 ? void 0 : _m.map((image) => !(image === null || image === void 0 ? void 0 : image.includes("http")) ? `${this.ytAnimeCoversHost}${image}` : image);
+                            (_o = animeInfo.episodes) === null || _o === void 0 ? void 0 : _o.push({
+                                id: `${animeId}/${episode.episodeIdNum}`,
+                                title: episode.notes,
+                                number: episode.episodeIdNum,
+                                image: images[0],
+                                releaseDate: dub === true
+                                    ? (_q = (_p = episode.uploadDates) === null || _p === void 0 ? void 0 : _p.dub) === null || _q === void 0 ? void 0 : _q.toString()
+                                    : (_s = (_r = episode.uploadDates) === null || _r === void 0 ? void 0 : _r.sub) === null || _s === void 0 ? void 0 : _s.toString(),
+                                hasDub: episode.vidInforsdub !== null,
+                                haSDub: episode.vidInforssub !== null,
+                            });
+                        }
                     }
-                    finally { if (e_2) throw e_2.error; }
+                    catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                    finally {
+                        try {
+                            if (!_t && !_a && (_b = _u.return)) yield _b.call(_u);
+                        }
+                        finally { if (e_2) throw e_2.error; }
+                    }
                 }
+                return animeInfo;
             }
-            return animeInfo;
+            catch (error) {
+                throw new Error(`AllAnime Info Error: ${error.message}`);
+            }
         });
     }
     getMediaSources(episodeId, server = "default", dub = false) {
@@ -254,7 +264,7 @@ class AllAnime extends types_1.MediaProvier {
             }
             catch (error) {
                 console.error(error);
-                throw new Error(`Error getting Sources: ${error.message}`);
+                throw new Error(`AllAnime Sources Error: ${error.message}`);
             }
         });
     }

@@ -54,28 +54,32 @@ class AllAnime extends MediaProvier {
 
     const variables = `{"search":{"query":"${query}"},"translationType":"sub"}`;
 
-    const data = await this.graphqlQuery<AllAnimeSearch>(variables, this.searchHash);
-    const edges = data?.data?.shows?.edges;
+    try {
+      const data = await this.graphqlQuery<AllAnimeSearch>(variables, this.searchHash);
+      const edges = data?.data?.shows?.edges;
 
-    if (!edges) return searchResult;
+      if (!edges) return searchResult;
 
-    for await (const item of edges) {
-      searchResult.results.push({
-        id: item._id,
-        title: {
-          english: item.englishName!,
-          native: item.nativeName!,
-          romaji: item.name,
-          userPreferred: item.name,
-        },
-        image: item.thumbnail,
-        rating: item.score!,
-        releaseDate: item.airedStart.year?.toString(),
-        type: item.type as MediaFormat,
-      });
+      for await (const item of edges) {
+        searchResult.results.push({
+          id: item._id,
+          title: {
+            english: item.englishName!,
+            native: item.nativeName!,
+            romaji: item.name,
+            userPreferred: item.name,
+          },
+          image: item.thumbnail,
+          rating: item.score!,
+          releaseDate: item.airedStart.year?.toString(),
+          type: item.type as MediaFormat,
+        });
+      }
+
+      return searchResult;
+    } catch (error) {
+      throw new Error(`AllAnime Search Error: ${(error as Error).message}`);
     }
-
-    return searchResult;
   }
 
   async getMediaInfo(animeId: string, dub: boolean = false, ...args: any): Promise<IMediaInfo> {
@@ -88,78 +92,81 @@ class AllAnime extends MediaProvier {
       genres: [],
       totalEpisodes: 0,
     };
+    try {
+      const data = await this.graphqlQuery<AllAnimeInfo>(variables, this.idHash);
 
-    const data = await this.graphqlQuery<AllAnimeInfo>(variables, this.idHash);
+      const anime = data?.data?.show;
 
-    const anime = data?.data?.show;
-
-    animeInfo.title = {
-      english: anime?.englishName!,
-      native: anime?.nativeName!,
-      romaji: anime?.name!,
-      userPreferred: anime?.name,
-    };
-    animeInfo.url = `${this.baseUrl}/${animeId}`;
-    animeInfo.genres = anime?.genres;
-    animeInfo.totalEpisodes = parseInt(anime?.episodeCount!);
-    animeInfo.image = anime?.thumbnail;
-    animeInfo.cover = anime?.banner!;
-    animeInfo.rating = anime?.score!;
-    animeInfo.releaseDate = anime?.airedStart?.year?.toString();
-    animeInfo.type = anime?.type as MediaFormat;
-    animeInfo.description = anime?.description;
-    switch (anime?.status) {
-      case "Ongoing":
-        animeInfo.status = MediaStatus.ONGOING;
-        break;
-      case "Completed":
-        animeInfo.status = MediaStatus.COMPLETED;
-        break;
-      case "Upcoming":
-        animeInfo.status = MediaStatus.NOT_YET_AIRED;
-        break;
-      default:
-        animeInfo.status = MediaStatus.UNKNOWN;
-        break;
-    }
-    animeInfo.endDate = anime?.airedEnd;
-    animeInfo.startDate = anime?.airedStart;
-
-    const epCount = dub === true ? anime!?.availableEpisodes.dub : anime!?.availableEpisodes.sub;
-    const episodeVars = `{"showId":"${animeId}","episodeNumStart":0,"episodeNumEnd":${epCount}}`;
-
-    const episodeInfo = await this.graphqlQuery<AllAnimeEpisodeInfo>(
-      episodeVars,
-      this.episodeInfoHash
-    );
-
-    animeInfo.episodes = [];
-
-    if (episodeInfo?.data?.episodeInfos?.length! >= 0) {
-      animeInfo.hasDub = episodeInfo?.data?.episodeInfos[0].vidInforsdub !== null;
-      animeInfo.hasSub = episodeInfo?.data?.episodeInfos[0].vidInforssub !== null;
-
-      for await (const episode of episodeInfo?.data?.episodeInfos!) {
-        const images = episode.thumbnails?.map((image) =>
-          !image?.includes("http") ? `${this.ytAnimeCoversHost}${image}` : image
-        );
-
-        animeInfo.episodes?.push({
-          id: `${animeId}/${episode.episodeIdNum}`,
-          title: episode.notes,
-          number: episode.episodeIdNum,
-          image: images![0],
-          releaseDate:
-            dub === true
-              ? episode.uploadDates?.dub?.toString()
-              : episode.uploadDates?.sub?.toString()!,
-          hasDub: episode.vidInforsdub !== null,
-          haSDub: episode.vidInforssub !== null,
-        });
+      animeInfo.title = {
+        english: anime?.englishName!,
+        native: anime?.nativeName!,
+        romaji: anime?.name!,
+        userPreferred: anime?.name,
+      };
+      animeInfo.url = `${this.baseUrl}/${animeId}`;
+      animeInfo.genres = anime?.genres;
+      animeInfo.totalEpisodes = parseInt(anime?.episodeCount!);
+      animeInfo.image = anime?.thumbnail;
+      animeInfo.cover = anime?.banner!;
+      animeInfo.rating = anime?.score!;
+      animeInfo.releaseDate = anime?.airedStart?.year?.toString();
+      animeInfo.type = anime?.type as MediaFormat;
+      animeInfo.description = anime?.description;
+      switch (anime?.status) {
+        case "Ongoing":
+          animeInfo.status = MediaStatus.ONGOING;
+          break;
+        case "Completed":
+          animeInfo.status = MediaStatus.COMPLETED;
+          break;
+        case "Upcoming":
+          animeInfo.status = MediaStatus.NOT_YET_AIRED;
+          break;
+        default:
+          animeInfo.status = MediaStatus.UNKNOWN;
+          break;
       }
-    }
+      animeInfo.endDate = anime?.airedEnd;
+      animeInfo.startDate = anime?.airedStart;
 
-    return animeInfo;
+      const epCount = dub === true ? anime!?.availableEpisodes.dub : anime!?.availableEpisodes.sub;
+      const episodeVars = `{"showId":"${animeId}","episodeNumStart":0,"episodeNumEnd":${epCount}}`;
+
+      const episodeInfo = await this.graphqlQuery<AllAnimeEpisodeInfo>(
+        episodeVars,
+        this.episodeInfoHash
+      );
+
+      animeInfo.episodes = [];
+
+      if (episodeInfo?.data?.episodeInfos?.length! >= 0) {
+        animeInfo.hasDub = episodeInfo?.data?.episodeInfos[0].vidInforsdub !== null;
+        animeInfo.hasSub = episodeInfo?.data?.episodeInfos[0].vidInforssub !== null;
+
+        for await (const episode of episodeInfo?.data?.episodeInfos!) {
+          const images = episode.thumbnails?.map((image) =>
+            !image?.includes("http") ? `${this.ytAnimeCoversHost}${image}` : image
+          );
+
+          animeInfo.episodes?.push({
+            id: `${animeId}/${episode.episodeIdNum}`,
+            title: episode.notes,
+            number: episode.episodeIdNum,
+            image: images![0],
+            releaseDate:
+              dub === true
+                ? episode.uploadDates?.dub?.toString()
+                : episode.uploadDates?.sub?.toString()!,
+            hasDub: episode.vidInforsdub !== null,
+            haSDub: episode.vidInforssub !== null,
+          });
+        }
+      }
+
+      return animeInfo;
+    } catch (error) {
+      throw new Error(`AllAnime Info Error: ${(error as Error).message}`);
+    }
   }
 
   async getMediaSources(
@@ -222,7 +229,7 @@ class AllAnime extends MediaProvier {
     } catch (error) {
       console.error(error);
 
-      throw new Error(`Error getting Sources: ${(error as Error).message}`);
+      throw new Error(`AllAnime Sources Error: ${(error as Error).message}`);
     }
   }
 
