@@ -6,7 +6,7 @@ import {
   ISource,
   MediaProvier,
   MetaData,
-} from "../../types";
+} from "../../../types";
 
 import * as metadata from "./extension.json";
 

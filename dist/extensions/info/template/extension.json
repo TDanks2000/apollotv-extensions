@@ -1,0 +1,18 @@
+{
+    "type": "info",
+    "name": "name of the extension",
+    "version": "0.0.1",
+    "image": "image of the extension",
+    "author": {
+        "name": "authors name or username",
+        "image": "authors image or logo of the extension",
+        "link": "authors link or website of the extension"
+    },
+    "code": {
+        "main": "index",
+        "utils": {
+            "mainURL": "website url of the extension",
+            "apiURL": "api url of the extension or null"
+        }
+    }
+}

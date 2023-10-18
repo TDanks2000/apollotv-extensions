@@ -51,8 +51,6 @@ class Anilist extends MediaProvier {
     super();
     this.provider = provider || new GogoAnime();
     this.animapped_api_key = animapped_api_key ?? "";
-
-    this.Manga = new AnilistManga();
   }
 
   async search(
@@ -1004,8 +1002,6 @@ class Anilist extends MediaProvier {
 
     return newEpisodeList;
   };
-
-  Manga: AnilistManga;
 }
 
 export default Anilist;

@@ -20,4 +20,5 @@ export const EXTENSION_LIST: EXTENSION_LIST_TYPE = {
   ],
   MOVIE: [new MOVIE.FlixHQ()],
   INFO: [new INFO.Anilist()],
+  INFO_MANGA: [new INFO.AnilistManga()],
 };

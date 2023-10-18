@@ -1,5 +1,5 @@
 {
-  "type": "movie | tv | anime | manga | info",
+  "type": "info",
   "name": "name of the extension",
   "version": "0.0.1",
   "image": "image of the extension",
