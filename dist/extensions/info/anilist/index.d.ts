@@ -91,3 +91,7 @@ declare class Anilist extends MediaProvier {
     private findManga;
 }
 export default Anilist;
+/**
+ * Most of this code is from @consumet i have just modifed it a little
+ * Its not intended for public use on use on my app (@ApolloTV)
+ */

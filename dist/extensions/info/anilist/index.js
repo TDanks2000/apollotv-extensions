@@ -43,7 +43,6 @@ const utils_1 = require("../../../utils");
 const queries_1 = require("./queries");
 const metadata = __importStar(require("./extension.json"));
 const mangasee123_1 = __importDefault(require("../../manga/mangasee123"));
-const mangadex_1 = __importDefault(require("../../manga/mangadex"));
 class Anilist extends types_1.MediaProvier {
     constructor(provider, animapped_api_key) {
         super();
@@ -1674,8 +1673,8 @@ exports.default = Anilist;
  * Most of this code is from @consumet i have just modifed it a little
  * Its not intended for public use on use on my app (@ApolloTV)
  */
-(() => __awaiter(void 0, void 0, void 0, function* () {
-    const ext = new Anilist.Manga(new mangadex_1.default());
-    const info = yield ext.getMediaInfo("64053");
-    console.log(info);
-}))();
+// (async () => {
+//   const ext = new Anilist.Manga(new MangaDex());
+//   const info = await ext.getMediaInfo("64053");
+//   console.log(info);
+// })();

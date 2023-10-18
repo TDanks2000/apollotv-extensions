@@ -2011,8 +2011,8 @@ export default Anilist;
  * Its not intended for public use on use on my app (@ApolloTV)
  */
 
-(async () => {
-  const ext = new Anilist.Manga(new MangaDex());
-  const info = await ext.getMediaInfo("64053");
-  console.log(info);
-})();
+// (async () => {
+//   const ext = new Anilist.Manga(new MangaDex());
+//   const info = await ext.getMediaInfo("64053");
+//   console.log(info);
+// })();
