@@ -38,6 +38,7 @@ import {
 
 import * as metadata from "./extension.json";
 import Mangasee123 from "../../manga/mangasee123";
+import MangaDex from "../../manga/mangadex";
 
 class Anilist extends MediaProvier {
   public metaData: MetaData = metadata;
@@ -1742,13 +1743,15 @@ class Anilist extends MediaProvier {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        query: anilistMediaDetailQuery(id),
+        query: anilistMediaDetailQuery(id, "MANGA"),
       };
 
       try {
         const { data } = await axios.post(new Anilist().anilistGraphqlUrl, options).catch((err) => {
+          console.log(err);
           throw new Error("Media not found");
         });
+
         mangaInfo.malId = data.data.Media.idMal;
         mangaInfo.title = {
           romaji: data.data.Media.title.romaji,
@@ -1918,44 +1921,44 @@ class Anilist extends MediaProvier {
 
     let possibleManga: any;
 
-    if (malId) {
-      const malAsyncReq = await this.client.get(
-        `https://raw.githubusercontent.com/bal-mackup/mal-backup/master/mal/manga/${malId}.json`,
-        {
-          validateStatus: () => true,
-        }
-      );
+    if (!malId) {
+      possibleManga = await this.findMangaRaw(provider, slug, title);
+    }
 
-      if (malAsyncReq.status === 200) {
-        const sitesT = malAsyncReq.data.Sites as {
-          [k: string]: {
-            [k: string]: { url: string; page: string; title: string };
-          };
-        };
-        let sites = Object.values(sitesT).map((v, i) => {
-          const obj: any = [...Object.values(Object.values(sitesT)[i])];
-          const pages: any = obj.map((v: any) => ({
-            page: v.page,
-            url: v.url,
-            title: v.title,
-          }));
-          return pages;
-        }) as any[];
+    const malAsyncReq = await this.client.get(
+      `https://raw.githubusercontent.com/bal-mackup/mal-backup/master/mal/manga/${malId}.json`,
+      {
+        validateStatus: () => true,
+      }
+    );
 
-        sites = sites.flat();
+    if (malAsyncReq.status !== 200) {
+      possibleManga = await this.findMangaRaw(provider, slug, title);
+    }
 
-        const possibleSource = sites.find(
-          (s) => s.page.toLowerCase() === provider.metaData.name.toLowerCase()
-        );
+    const sitesT = malAsyncReq.data.Sites as {
+      [k: string]: { [k: string]: { url: string; page: string; title: string } };
+    };
 
-        if (possibleSource)
-          possibleManga = await provider.getMediaInfo(possibleSource.url.split("/").pop()!);
-        else possibleManga = await this.findMangaRaw(provider, slug, title);
-      } else possibleManga = await this.findMangaRaw(provider, slug, title);
-    } else possibleManga = await this.findMangaRaw(provider, slug, title);
+    let sites = Object.values(sitesT).map((v, i) => {
+      const obj: any = [...Object.values(Object.values(sitesT)[i])];
+      const pages: any = obj.map((v: any) => ({ page: v.page, url: v.url, title: v.title }));
+      return pages;
+    }) as any[];
+
+    sites = sites.flat();
+
+    const possibleSource = sites.find(
+      (s) => s.page.toLowerCase() === provider.metaData.name.toLowerCase()
+    );
+
+    if (possibleSource) {
+      possibleManga = await provider.getMediaInfo(possibleSource.url.split("/").pop()!);
+    } else {
+      possibleManga = await this.findMangaRaw(provider, slug, title);
+    }
 
     const possibleProviderChapters = possibleManga.chapters;
-
     return possibleProviderChapters;
   };
 
@@ -1966,12 +1969,13 @@ class Anilist extends MediaProvier {
     // TODO: use much better way than this
 
     const possibleManga = findAnime.results.find(
-      (manga: IReadableResult) =>
+      (manga: IReadableChapter) =>
         title.toLowerCase() == (typeof manga.title === "string" ? manga.title.toLowerCase() : "")
     );
 
-    if (!possibleManga)
+    if (!possibleManga) {
       return (await provider.getMediaInfo(findAnime.results[0].id)) as IReadableInfo;
+    }
     return (await provider.getMediaInfo(possibleManga.id)) as IReadableInfo;
   };
 
@@ -2006,3 +2010,9 @@ export default Anilist;
  * Most of this code is from @consumet i have just modifed it a little
  * Its not intended for public use on use on my app (@ApolloTV)
  */
+
+(async () => {
+  const ext = new Anilist.Manga(new MangaDex());
+  const info = await ext.getMediaInfo("64053");
+  console.log(info);
+})();

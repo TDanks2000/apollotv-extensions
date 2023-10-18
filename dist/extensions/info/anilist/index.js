@@ -43,6 +43,7 @@ const utils_1 = require("../../../utils");
 const queries_1 = require("./queries");
 const metadata = __importStar(require("./extension.json"));
 const mangasee123_1 = __importDefault(require("../../manga/mangasee123"));
+const mangadex_1 = __importDefault(require("../../manga/mangadex"));
 class Anilist extends types_1.MediaProvier {
     constructor(provider, animapped_api_key) {
         super();
@@ -887,33 +888,29 @@ class Anilist extends types_1.MediaProvier {
         this.findMangaSlug = (provider, title, malId) => __awaiter(this, void 0, void 0, function* () {
             const slug = title.replace(/[^0-9a-zA-Z]+/g, " ");
             let possibleManga;
-            if (malId) {
-                const malAsyncReq = yield this.client.get(`https://raw.githubusercontent.com/bal-mackup/mal-backup/master/mal/manga/${malId}.json`, {
-                    validateStatus: () => true,
-                });
-                if (malAsyncReq.status === 200) {
-                    const sitesT = malAsyncReq.data.Sites;
-                    let sites = Object.values(sitesT).map((v, i) => {
-                        const obj = [...Object.values(Object.values(sitesT)[i])];
-                        const pages = obj.map((v) => ({
-                            page: v.page,
-                            url: v.url,
-                            title: v.title,
-                        }));
-                        return pages;
-                    });
-                    sites = sites.flat();
-                    const possibleSource = sites.find((s) => s.page.toLowerCase() === provider.metaData.name.toLowerCase());
-                    if (possibleSource)
-                        possibleManga = yield provider.getMediaInfo(possibleSource.url.split("/").pop());
-                    else
-                        possibleManga = yield this.findMangaRaw(provider, slug, title);
-                }
-                else
-                    possibleManga = yield this.findMangaRaw(provider, slug, title);
-            }
-            else
+            if (!malId) {
                 possibleManga = yield this.findMangaRaw(provider, slug, title);
+            }
+            const malAsyncReq = yield this.client.get(`https://raw.githubusercontent.com/bal-mackup/mal-backup/master/mal/manga/${malId}.json`, {
+                validateStatus: () => true,
+            });
+            if (malAsyncReq.status !== 200) {
+                possibleManga = yield this.findMangaRaw(provider, slug, title);
+            }
+            const sitesT = malAsyncReq.data.Sites;
+            let sites = Object.values(sitesT).map((v, i) => {
+                const obj = [...Object.values(Object.values(sitesT)[i])];
+                const pages = obj.map((v) => ({ page: v.page, url: v.url, title: v.title }));
+                return pages;
+            });
+            sites = sites.flat();
+            const possibleSource = sites.find((s) => s.page.toLowerCase() === provider.metaData.name.toLowerCase());
+            if (possibleSource) {
+                possibleManga = yield provider.getMediaInfo(possibleSource.url.split("/").pop());
+            }
+            else {
+                possibleManga = yield this.findMangaRaw(provider, slug, title);
+            }
             const possibleProviderChapters = possibleManga.chapters;
             return possibleProviderChapters;
         });
@@ -923,8 +920,9 @@ class Anilist extends types_1.MediaProvier {
                 return [];
             // TODO: use much better way than this
             const possibleManga = findAnime.results.find((manga) => title.toLowerCase() == (typeof manga.title === "string" ? manga.title.toLowerCase() : ""));
-            if (!possibleManga)
+            if (!possibleManga) {
                 return (yield provider.getMediaInfo(findAnime.results[0].id));
+            }
             return (yield provider.getMediaInfo(possibleManga.id));
         });
         this.findManga = (provider, title, malId) => __awaiter(this, void 0, void 0, function* () {
@@ -1521,10 +1519,11 @@ Anilist.Manga = class Manga {
                     "Content-Type": "application/json",
                     Accept: "application/json",
                 },
-                query: (0, queries_1.anilistMediaDetailQuery)(id),
+                query: (0, queries_1.anilistMediaDetailQuery)(id, "MANGA"),
             };
             try {
                 const { data } = yield axios_1.default.post(new Anilist().anilistGraphqlUrl, options).catch((err) => {
+                    console.log(err);
                     throw new Error("Media not found");
                 });
                 mangaInfo.malId = data.data.Media.idMal;
@@ -1675,3 +1674,8 @@ exports.default = Anilist;
  * Most of this code is from @consumet i have just modifed it a little
  * Its not intended for public use on use on my app (@ApolloTV)
  */
+(() => __awaiter(void 0, void 0, void 0, function* () {
+    const ext = new Anilist.Manga(new mangadex_1.default());
+    const info = yield ext.getMediaInfo("64053");
+    console.log(info);
+}))();
