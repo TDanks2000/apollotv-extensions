@@ -96,6 +96,7 @@ class MangaPill extends ReadableParser {
           (i, el): IReadableChapterPage => ({
             img: $(el).find("div picture img").attr("data-src")!,
             page: parseFloat($(el).find(`div[data-summary] > div`).text().split("page ")[1]),
+            headerForImage: { Referer: this.baseUrl },
           })
         )
         .get();
