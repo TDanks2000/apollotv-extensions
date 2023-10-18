@@ -35,7 +35,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AnilistManga = void 0;
 const axios_1 = __importDefault(require("axios"));
 const types_1 = require("../../../types");
 const mangasee123_1 = __importDefault(require("../../manga/mangasee123"));
@@ -321,4 +320,4 @@ class AnilistManga extends types_1.ReadableParser {
         });
     }
 }
-exports.AnilistManga = AnilistManga;
+exports.default = AnilistManga;

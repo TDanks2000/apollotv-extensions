@@ -5,5 +5,4 @@ export type EXTENSION_LIST_TYPE = {
     MANGA: ReadableParser[];
     MOVIE: MediaProvier[];
     INFO: MediaProvier[];
-    INFO_MANGA: ReadableParser[];
 };

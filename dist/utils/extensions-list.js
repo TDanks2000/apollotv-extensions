@@ -21,5 +21,4 @@ exports.EXTENSION_LIST = {
     ],
     MOVIE: [new extensions_1.MOVIE.FlixHQ()],
     INFO: [new extensions_1.INFO.Anilist()],
-    INFO_MANGA: [new extensions_1.INFO.AnilistManga()],
 };

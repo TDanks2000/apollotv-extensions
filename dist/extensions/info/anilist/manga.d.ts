@@ -14,4 +14,4 @@ declare class AnilistManga extends ReadableParser {
     private findMangaRaw;
     private findManga;
 }
-export { AnilistManga };
+export default AnilistManga;

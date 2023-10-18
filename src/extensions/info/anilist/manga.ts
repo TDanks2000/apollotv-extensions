@@ -364,4 +364,4 @@ class AnilistManga extends ReadableParser {
   };
 }
 
-export { AnilistManga };
+export default AnilistManga;

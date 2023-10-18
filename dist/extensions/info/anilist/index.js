@@ -41,6 +41,7 @@ const gogoanime_1 = __importDefault(require("../../anime/gogoanime"));
 const utils_1 = require("../../../utils");
 const queries_1 = require("./queries");
 const metadata = __importStar(require("./extension.json"));
+const manga_1 = __importDefault(require("./manga"));
 /**
  * Most of this code is from @consumet i have just modifed it a little
  * Its not intended for public use on use on my app (@ApolloTV)
@@ -329,6 +330,7 @@ class Anilist extends types_1.MediaProvier {
         });
         this.provider = provider || new gogoanime_1.default();
         this.animapped_api_key = animapped_api_key !== null && animapped_api_key !== void 0 ? animapped_api_key : "";
+        this.Manga = new manga_1.default();
     }
     search(query, page = 1, perPage = 15) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;

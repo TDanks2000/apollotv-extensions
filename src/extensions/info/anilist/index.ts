@@ -26,7 +26,7 @@ import {
 } from "./queries";
 
 import * as metadata from "./extension.json";
-import { AnilistManga } from "./manga";
+import AnilistManga from "./manga";
 import AnimePahe from "../../anime/animepahe";
 import AllAnime from "../../anime/allanime";
 
@@ -51,6 +51,8 @@ class Anilist extends MediaProvier {
     super();
     this.provider = provider || new GogoAnime();
     this.animapped_api_key = animapped_api_key ?? "";
+
+    this.Manga = new AnilistManga();
   }
 
   async search(
@@ -1002,6 +1004,8 @@ class Anilist extends MediaProvier {
 
     return newEpisodeList;
   };
+
+  Manga: AnilistManga;
 }
 
 export default Anilist;
