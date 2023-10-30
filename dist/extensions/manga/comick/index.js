@@ -45,12 +45,12 @@ class ComicK extends types_1.ReadableParser {
         this.metaData = metadata;
         this.baseUrl = metadata.code.utils.mainURL;
         this.apiURL = metadata.code.utils.apiURL;
-        this.getAllChapters = (mangaId, page) => __awaiter(this, void 0, void 0, function* () {
+        this.getAllChapters = (mangaId, page, lang = "en") => __awaiter(this, void 0, void 0, function* () {
             if (page <= 0) {
                 page = 1;
             }
             const comicId = yield this.getComicId(mangaId);
-            const req = yield this._axios().get(`/comic/${comicId}/chapters?page=${page}`);
+            const req = yield this._axios().get(`/comic/${comicId}/chapters?page=${page}&lang=${lang}`);
             return req.data.chapters;
         });
     }
@@ -167,10 +167,3 @@ class ComicK extends types_1.ReadableParser {
     }
 }
 exports.default = ComicK;
-// (async () => {
-//   const ext = new ComicK();
-//   const search = await ext.search("One Piece");
-//   const data = await ext.getMediaInfo(search.results[0].id);
-//   const chapterPages = await ext.getChapterPages(data.chapters![0].id);
-//   console.log(chapterPages);
-// })();
