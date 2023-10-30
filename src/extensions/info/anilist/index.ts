@@ -39,6 +39,7 @@ import {
 import * as metadata from "./extension.json";
 import Mangasee123 from "../../manga/mangasee123";
 import MangaDex from "../../manga/mangadex";
+import ComicK from "../../manga/comick";
 
 class Anilist extends MediaProvier {
   public metaData: MetaData = metadata;
@@ -1948,6 +1949,16 @@ class Anilist extends MediaProvier {
 
     sites = sites.flat();
 
+    sites.sort((a, b) => {
+      const targetTitle = title.toLowerCase();
+
+      const firstRating = compareTwoStrings(targetTitle, a.title.toLowerCase());
+      const secondRating = compareTwoStrings(targetTitle, b.title.toLowerCase());
+
+      // Sort in descending order
+      return secondRating - firstRating;
+    });
+
     const possibleSource = sites.find(
       (s) => s.page.toLowerCase() === provider.metaData.name.toLowerCase()
     );
@@ -2012,7 +2023,8 @@ export default Anilist;
  */
 
 // (async () => {
-//   const ext = new Anilist.Manga(new MangaDex());
-//   const info = await ext.getMediaInfo("64053");
-//   console.log(info);
+//   const ext = new Anilist.Manga(new ComicK());
+//   const info = await ext.getMediaInfo("108556");
+//   const pages = await ext.getChapterPages(info.chapters![0].id);
+//   console.log(pages);
 // })();

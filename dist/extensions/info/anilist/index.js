@@ -903,6 +903,13 @@ class Anilist extends types_1.MediaProvier {
                 return pages;
             });
             sites = sites.flat();
+            sites.sort((a, b) => {
+                const targetTitle = title.toLowerCase();
+                const firstRating = (0, utils_1.compareTwoStrings)(targetTitle, a.title.toLowerCase());
+                const secondRating = (0, utils_1.compareTwoStrings)(targetTitle, b.title.toLowerCase());
+                // Sort in descending order
+                return secondRating - firstRating;
+            });
             const possibleSource = sites.find((s) => s.page.toLowerCase() === provider.metaData.name.toLowerCase());
             if (possibleSource) {
                 possibleManga = yield provider.getMediaInfo(possibleSource.url.split("/").pop());
@@ -1674,7 +1681,8 @@ exports.default = Anilist;
  * Its not intended for public use on use on my app (@ApolloTV)
  */
 // (async () => {
-//   const ext = new Anilist.Manga(new MangaDex());
-//   const info = await ext.getMediaInfo("64053");
-//   console.log(info);
+//   const ext = new Anilist.Manga(new ComicK());
+//   const info = await ext.getMediaInfo("108556");
+//   const pages = await ext.getChapterPages(info.chapters![0].id);
+//   console.log(pages);
 // })();

@@ -157,5 +157,6 @@ export default ComicK;
 //   const ext = new ComicK();
 //   const search = await ext.search("One Piece");
 //   const data = await ext.getMediaInfo(search.results[0].id);
-//   console.log(data);
+//   const chapterPages = await ext.getChapterPages(data.chapters![0].id);
+//   console.log(chapterPages);
 // })();
