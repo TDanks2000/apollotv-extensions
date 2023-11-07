@@ -18,40 +18,40 @@ const types_1 = require("../types");
 class AsianLoad extends types_1.VideoExtractor {
     constructor() {
         super(...arguments);
-        this.serverName = "asianload";
+        this.serverName = 'asianload';
         this.sources = [];
         this.keys = {
-            key: crypto_js_1.default.enc.Utf8.parse("93422192433952489752342908585752"),
-            iv: crypto_js_1.default.enc.Utf8.parse("9262859232435825"),
+            key: crypto_js_1.default.enc.Utf8.parse('93422192433952489752342908585752'),
+            iv: crypto_js_1.default.enc.Utf8.parse('9262859232435825'),
         };
         this.extract = (videoUrl) => __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c;
             const res = yield this.client.get(videoUrl.href);
             const $ = (0, cheerio_1.load)(res.data);
-            const encyptedParams = yield this.generateEncryptedAjaxParams($, (_a = videoUrl.searchParams.get("id")) !== null && _a !== void 0 ? _a : "");
+            const encyptedParams = yield this.generateEncryptedAjaxParams($, (_a = videoUrl.searchParams.get('id')) !== null && _a !== void 0 ? _a : '');
             const encryptedData = yield this.client.get(`${videoUrl.protocol}//${videoUrl.hostname}/encrypt-ajax.php?${encyptedParams}`, {
                 headers: {
-                    "X-Requested-With": "XMLHttpRequest",
+                    'X-Requested-With': 'XMLHttpRequest',
                 },
             });
             const decryptedData = yield this.decryptAjaxData(encryptedData.data.data);
             if (!decryptedData.source)
-                throw new Error("No source found. Try a different server.");
+                throw new Error('No source found. Try a different server.');
             decryptedData.source.forEach((source) => {
                 this.sources.push({
                     url: source.file,
-                    isM3U8: source.file.includes(".m3u8"),
+                    isM3U8: source.file.includes('.m3u8'),
                 });
             });
             decryptedData.source_bk.forEach((source) => {
                 this.sources.push({
                     url: source.file,
-                    isM3U8: source.file.includes(".m3u8"),
+                    isM3U8: source.file.includes('.m3u8'),
                 });
             });
             const subtitles = (_c = (_b = decryptedData.track) === null || _b === void 0 ? void 0 : _b.tracks) === null || _c === void 0 ? void 0 : _c.map((track) => ({
                 url: track.file,
-                lang: track.kind === "thumbnails" ? "Default (maybe)" : track.kind,
+                lang: track.kind === 'thumbnails' ? 'Default (maybe)' : track.kind,
             }));
             return {
                 sources: this.sources,

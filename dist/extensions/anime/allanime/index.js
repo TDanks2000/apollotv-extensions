@@ -183,7 +183,7 @@ class AllAnime extends types_1.MediaProvier {
                                 id: `${animeId}/${episode.episodeIdNum}`,
                                 title: episode.notes,
                                 number: episode.episodeIdNum,
-                                image: images[0],
+                                image: (images === null || images === void 0 ? void 0 : images.length) >= 1 ? images[0] : "",
                                 releaseDate: dub === true
                                     ? (_w = (_v = episode.uploadDates) === null || _v === void 0 ? void 0 : _v.dub) === null || _w === void 0 ? void 0 : _w.toString()
                                     : (_y = (_x = episode.uploadDates) === null || _x === void 0 ? void 0 : _x.sub) === null || _y === void 0 ? void 0 : _y.toString(),

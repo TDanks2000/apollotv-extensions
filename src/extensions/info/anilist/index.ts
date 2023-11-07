@@ -40,6 +40,7 @@ import * as metadata from "./extension.json";
 import Mangasee123 from "../../manga/mangasee123";
 import MangaDex from "../../manga/mangadex";
 import ComicK from "../../manga/comick";
+import AllAnime from "../../anime/allanime";
 
 class Anilist extends MediaProvier {
   public metaData: MetaData = metadata;
@@ -2022,9 +2023,10 @@ export default Anilist;
  * Its not intended for public use on use on my app (@ApolloTV)
  */
 
-// (async () => {
-//   const ext = new Anilist.Manga(new ComicK());
-//   const info = await ext.getMediaInfo("108556");
-//   const pages = await ext.getChapterPages(info.chapters![0].id);
-//   console.log(pages);
-// })();
+(async () => {
+  const ext = new Anilist(new AllAnime());
+  const info = await ext.getMediaInfo("21");
+  // const pages = await ext.getChapterPages(info.chapters![0].id);
+  const pages = await ext.getMediaSources(info.episodes![0]!.id, "default", true);
+  console.log(pages);
+})();

@@ -158,7 +158,7 @@ class AllAnime extends MediaProvier {
             id: `${animeId}/${episode.episodeIdNum}`,
             title: episode.notes,
             number: episode.episodeIdNum,
-            image: images![0],
+            image: images?.length! >= 1 ? images![0] : "",
             releaseDate:
               dub === true
                 ? episode.uploadDates?.dub?.toString()

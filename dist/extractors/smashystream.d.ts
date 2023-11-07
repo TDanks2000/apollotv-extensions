@@ -1,4 +1,4 @@
-import { VideoExtractor, IVideo, ISubtitle } from "../types";
+import { ISubtitle, IVideo, VideoExtractor } from '../types';
 declare class SmashyStream extends VideoExtractor {
     protected serverName: string;
     protected sources: IVideo[];

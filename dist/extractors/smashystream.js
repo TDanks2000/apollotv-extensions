@@ -12,72 +12,72 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const crypto_1 = __importDefault(require("crypto"));
-const types_1 = require("../types");
 const cheerio_1 = require("cheerio");
+const crypto_js_1 = __importDefault(require("crypto-js"));
+const types_1 = require("../types");
 // Copied form https://github.com/JorrinKievit/restreamer/blob/main/src/main/extractors/smashystream.ts/smashystream.ts
 // Thanks Jorrin Kievit
 class SmashyStream extends types_1.VideoExtractor {
     constructor() {
         super(...arguments);
-        this.serverName = "SmashyStream";
+        this.serverName = 'SmashyStream';
         this.sources = [];
-        this.host = "https://embed.smashystream.com";
+        this.host = 'https://embed.smashystream.com';
         this.extract = (videoUrl) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = [];
                 const { data } = yield this.client.get(videoUrl.href);
                 const $ = (0, cheerio_1.load)(data);
-                const sourceUrls = $(".dropdown-menu a[data-id]")
-                    .map((_, el) => $(el).attr("data-id"))
+                const sourceUrls = $('.dropdown-menu a[data-id]')
+                    .map((_, el) => $(el).attr('data-id'))
                     .get()
-                    .filter((it) => it !== "_default");
+                    .filter((it) => it !== '_default');
                 yield Promise.all(sourceUrls.map((sourceUrl) => __awaiter(this, void 0, void 0, function* () {
-                    if (sourceUrl.includes("/ffix")) {
+                    if (sourceUrl.includes('/ffix')) {
                         const data = yield this.extractSmashyFfix(sourceUrl);
                         result.push({
-                            source: "FFix",
+                            source: 'FFix',
                             data: data,
                         });
                     }
-                    if (sourceUrl.includes("/watchx")) {
+                    if (sourceUrl.includes('/watchx')) {
                         const data = yield this.extractSmashyWatchX(sourceUrl);
                         result.push({
-                            source: "WatchX",
+                            source: 'WatchX',
                             data: data,
                         });
                     }
-                    if (sourceUrl.includes("/nflim")) {
+                    if (sourceUrl.includes('/nflim')) {
                         const data = yield this.extractSmashyNFlim(sourceUrl);
                         result.push({
-                            source: "NFilm",
+                            source: 'NFilm',
                             data: data,
                         });
                     }
-                    if (sourceUrl.includes("/fx")) {
+                    if (sourceUrl.includes('/fx')) {
                         const data = yield this.extractSmashyFX(sourceUrl);
                         result.push({
-                            source: "FX",
+                            source: 'FX',
                             data: data,
                         });
                     }
-                    if (sourceUrl.includes("/cf")) {
+                    if (sourceUrl.includes('/cf')) {
                         const data = yield this.extractSmashyCF(sourceUrl);
                         result.push({
-                            source: "CF",
+                            source: 'CF',
                             data: data,
                         });
                     }
-                    if (sourceUrl.includes("eemovie")) {
+                    if (sourceUrl.includes('eemovie')) {
                         const data = yield this.extractSmashyEEMovie(sourceUrl);
                         result.push({
-                            source: "EEMovie",
+                            source: 'EEMovie',
                             data: data,
                         });
                     }
                     return undefined;
                 })));
-                return result.filter((a) => a.source === "FFix")[0].data;
+                return result.filter((a) => a.source === 'FFix')[0].data;
             }
             catch (err) {
                 throw new Error(err.message);
@@ -101,19 +101,19 @@ class SmashyStream extends types_1.VideoExtractor {
                     .match(/\[([^\]]+)\](https?:\/\/\S+?)(?=,\[|$)/g)
                     .map((entry) => {
                     const [, quality, link] = entry.match(/\[([^\]]+)\](https?:\/\/\S+?)(?=,\[|$)/);
-                    return { quality, link: link.replace(",", "") };
+                    return { quality, link: link.replace(',', '') };
                 });
                 const vttArray = config.subtitle
                     .match(/\[([^\]]+)\](https?:\/\/\S+?)(?=,\[|$)/g)
                     .map((entry) => {
                     const [, language, link] = entry.match(/\[([^\]]+)\](https?:\/\/\S+?)(?=,\[|$)/);
-                    return { language, link: link.replace(",", "") };
+                    return { language, link: link.replace(',', '') };
                 });
                 files.map((source) => {
                     result.sources.push({
                         url: source.link,
                         quality: source.quality,
-                        isM3U8: source.link.includes(".m3u8"),
+                        isM3U8: source.link.includes('.m3u8'),
                     });
                 });
                 vttArray.map((subtitle) => {
@@ -136,7 +136,7 @@ class SmashyStream extends types_1.VideoExtractor {
                     sources: [],
                     subtitles: [],
                 };
-                const key = "4VqE3#N7zt&HEP^a";
+                const key = '4VqE3#N7zt&HEP^a';
                 const res = yield this.client.get(url, {
                     headers: {
                         referer: url,
@@ -144,20 +144,24 @@ class SmashyStream extends types_1.VideoExtractor {
                 });
                 const regex = /MasterJS\s*=\s*'([^']*)'/;
                 const base64EncryptedData = regex.exec(res.data)[1];
-                const base64DecryptedData = JSON.parse(Buffer.from(base64EncryptedData, "base64").toString("utf8"));
-                const derivedKey = crypto_1.default.pbkdf2Sync(key, Buffer.from(base64DecryptedData.salt, "hex"), base64DecryptedData.iterations, 32, "sha512");
-                const decipher = crypto_1.default.createDecipheriv("aes-256-cbc", derivedKey, Buffer.from(base64DecryptedData.iv, "hex"));
-                decipher.setEncoding("utf8");
-                let decrypted = decipher.update(base64DecryptedData.ciphertext, "base64", "utf8");
-                decrypted += decipher.final("utf8");
+                const base64DecryptedData = JSON.parse(Buffer.from(base64EncryptedData, 'base64').toString('utf8'));
+                const derivedKey = crypto_js_1.default.PBKDF2(key, crypto_js_1.default.enc.Hex.parse(base64DecryptedData.salt), {
+                    keySize: 32,
+                    iterations: base64DecryptedData.iterations,
+                    hasher: crypto_js_1.default.algo.SHA512,
+                });
+                const decipher = crypto_js_1.default.AES.decrypt(base64DecryptedData.ciphertext, derivedKey, {
+                    iv: crypto_js_1.default.enc.Hex.parse(base64DecryptedData.iv),
+                });
+                let decrypted = decipher.toString(crypto_js_1.default.enc.Utf8);
                 const sources = JSON.parse(decrypted.match(/sources: ([^\]]*\])/)[1]);
                 const tracks = JSON.parse(decrypted.match(/tracks: ([^]*?\}\])/)[1]);
-                const subtitles = tracks.filter((it) => it.kind === "captions");
+                const subtitles = tracks.filter((it) => it.kind === 'captions');
                 sources.map((source) => {
                     result.sources.push({
                         url: source.file,
                         quality: source.label,
-                        isM3U8: source.file.includes(".m3u8"),
+                        isM3U8: source.file.includes('.m3u8'),
                     });
                 });
                 subtitles.map((subtitle) => {
@@ -189,11 +193,11 @@ class SmashyStream extends types_1.VideoExtractor {
                 const config = JSON.parse((configData === null || configData === void 0 ? void 0 : configData.length) > 0 ? configData[1] : null);
                 const files = config === null || config === void 0 ? void 0 : config.file.match(/\[([^\]]+)\](https?:\/\/\S+?)(?=,\[|$)/g).map((entry) => {
                     const [, quality, link] = entry.match(/\[([^\]]+)\](https?:\/\/\S+?)(?=,\[|$)/);
-                    return { quality, link: link.replace(",", "") };
+                    return { quality, link: link.replace(',', '') };
                 });
                 const vttArray = config === null || config === void 0 ? void 0 : config.subtitle.match(/\[([^\]]+)\](https?:\/\/\S+?)(?=,\[|$)/g).map((entry) => {
                     const [, language, link] = entry.match(/\[([^\]]+)\](https?:\/\/\S+?)(?=,\[|$)/);
-                    return { language, link: link.replace(",", "") };
+                    return { language, link: link.replace(',', '') };
                 });
                 let validFiles = files;
                 if (files) {
@@ -213,7 +217,7 @@ class SmashyStream extends types_1.VideoExtractor {
                         result.sources.push({
                             url: source.link,
                             quality: source.quality,
-                            isM3U8: source.link.includes(".m3u8"),
+                            isM3U8: source.link.includes('.m3u8'),
                         });
                     });
                     if (vttArray) {
@@ -247,7 +251,7 @@ class SmashyStream extends types_1.VideoExtractor {
                 const file = res.data.match(/file:\s*"([^"]+)"/)[1];
                 result.sources.push({
                     url: file,
-                    isM3U8: file.includes(".m3u8"),
+                    isM3U8: file.includes('.m3u8'),
                 });
                 return result;
             }
@@ -270,13 +274,13 @@ class SmashyStream extends types_1.VideoExtractor {
                 });
                 const file = res.data.match(/file:\s*"([^"]+)"/)[1];
                 const fileRes = yield this.client.head(file);
-                if (fileRes.status !== 200 || fileRes.data.includes("404")) {
+                if (fileRes.status !== 200 || fileRes.data.includes('404')) {
                     return result;
                 }
                 else {
                     result.sources.push({
                         url: file,
-                        isM3U8: file.includes(".m3u8"),
+                        isM3U8: file.includes('.m3u8'),
                     });
                 }
                 return result;
@@ -301,7 +305,7 @@ class SmashyStream extends types_1.VideoExtractor {
                 const file = res.data.match(/file:\s*"([^"]+)"/)[1];
                 result.sources.push({
                     url: file,
-                    isM3U8: file.includes(".m3u8"),
+                    isM3U8: file.includes('.m3u8'),
                 });
                 return result;
             }
