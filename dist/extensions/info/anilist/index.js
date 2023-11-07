@@ -44,7 +44,7 @@ const queries_1 = require("./queries");
 const mangasee123_1 = __importDefault(require("../../manga/mangasee123"));
 const metadata = __importStar(require("./extension.json"));
 class Anilist extends types_1.MediaProvier {
-    constructor(provider, animapped_api_key) {
+    constructor(provider) {
         super();
         this.metaData = metadata;
         this.baseUrl = metadata.code.utils.mainURL;
@@ -197,9 +197,7 @@ class Anilist extends types_1.MediaProvier {
                 });
                 if (possibleSource)
                     return possibleSource.url.split('/').pop();
-                if (!this.animapped_api_key)
-                    return undefined;
-                const { data: animapped_data } = yield axios_1.default.get(`${this.animapped_api_url}/mal/${malId}?api_key=${this.animapped_api_key}`);
+                const { data: animapped_data } = yield axios_1.default.get(`${this.animapped_api_url}/mal/${malId}`);
                 const mappings = animapped_data === null || animapped_data === void 0 ? void 0 : animapped_data.mappings;
                 if (!mappings)
                     return undefined;
@@ -962,7 +960,6 @@ class Anilist extends types_1.MediaProvier {
             return englishPossibleEpisodes;
         });
         this.provider = provider || new gogoanime_1.default();
-        this.animapped_api_key = animapped_api_key !== null && animapped_api_key !== void 0 ? animapped_api_key : '';
     }
     search(query, page = 1, perPage = 15) {
         var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;

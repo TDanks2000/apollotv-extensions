@@ -54,12 +54,9 @@ class Anilist extends MediaProvier {
 
   provider: MediaProvier
 
-  private animapped_api_key?: string
-
-  constructor(provider?: MediaProvier, animapped_api_key?: string) {
+  constructor(provider?: MediaProvier) {
     super()
     this.provider = provider || new GogoAnime()
-    this.animapped_api_key = animapped_api_key ?? ''
   }
 
   async search(
@@ -912,10 +909,8 @@ class Anilist extends MediaProvier {
 
       if (possibleSource) return possibleSource.url.split('/').pop()!
 
-      if (!this.animapped_api_key) return undefined
-
       const { data: animapped_data } = await axios.get<AnimappedRes>(
-        `${this.animapped_api_url}/mal/${malId}?api_key=${this.animapped_api_key}`,
+        `${this.animapped_api_url}/mal/${malId}`,
       )
 
       const mappings = animapped_data?.mappings

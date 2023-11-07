@@ -7,8 +7,7 @@ declare class Anilist extends MediaProvier {
     protected animapped_api_url: string;
     protected kitsuGraphqlUrl: string;
     provider: MediaProvier;
-    private animapped_api_key?;
-    constructor(provider?: MediaProvier, animapped_api_key?: string);
+    constructor(provider?: MediaProvier);
     search(query: string, page?: number, perPage?: number): Promise<ISearch<IMediaResult>>;
     advancedSearch({ query, type, page, perPage, format, sort, genres, id, year, status, season, }: AdvancedSearch): Promise<ISearch<IMediaResult>>;
     getMediaInfo(id: string, dub?: boolean, fetchFiller?: boolean): Promise<IMediaInfo>;
