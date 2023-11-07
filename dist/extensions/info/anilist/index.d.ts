@@ -1,5 +1,5 @@
-import { Genres, IEpisodeServer, IMediaInfo, IMediaResult, IReadableChapterPage, IReadableInfo, IReadableResult, ISearch, ISource, MediaProvier, MetaData, ReadableParser } from "../../../types";
-import { AdvancedSearch } from "./types";
+import { Genres, IEpisodeServer, IMediaInfo, IMediaResult, IReadableChapterPage, IReadableInfo, IReadableResult, ISearch, ISource, MediaProvier, MetaData, ReadableParser } from '../../../types';
+import { AdvancedSearch } from './types';
 declare class Anilist extends MediaProvier {
     metaData: MetaData;
     protected baseUrl: string;
@@ -91,3 +91,7 @@ declare class Anilist extends MediaProvier {
     private findManga;
 }
 export default Anilist;
+/**
+ * Most of this code is from @consumet i have just modifed it a little
+ * Its not intended for public use on use on my app (@ApolloTV)
+ */

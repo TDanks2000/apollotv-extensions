@@ -38,12 +38,11 @@ var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const types_1 = require("../../../types");
-const gogoanime_1 = __importDefault(require("../../anime/gogoanime"));
 const utils_1 = require("../../../utils");
+const gogoanime_1 = __importDefault(require("../../anime/gogoanime"));
 const queries_1 = require("./queries");
-const metadata = __importStar(require("./extension.json"));
 const mangasee123_1 = __importDefault(require("../../manga/mangasee123"));
-const allanime_1 = __importDefault(require("../../anime/allanime"));
+const metadata = __importStar(require("./extension.json"));
 class Anilist extends types_1.MediaProvier {
     constructor(provider, animapped_api_key) {
         super();
@@ -76,7 +75,7 @@ class Anilist extends types_1.MediaProvier {
         });
         this.findAnimeSlug = (title, season, startDate, malId, dub, anilistId, externalLinks) => __awaiter(this, void 0, void 0, function* () {
             var _g, _h, _j;
-            const slug = title.replace(/[^0-9a-zA-Z]+/g, " ");
+            const slug = title.replace(/[^0-9a-zA-Z]+/g, ' ');
             let possibleAnime;
             let possibleSource = yield this.findMappingId(malId, dub);
             if (!possibleSource)
@@ -96,12 +95,13 @@ class Anilist extends types_1.MediaProvier {
             const expectedType = dub ? types_1.SubOrDubOrBoth.DUB : types_1.SubOrDubOrBoth.SUB;
             // Have this as a fallback in the meantime for compatibility
             if (possibleAnime.subOrDub) {
-                if (possibleAnime.subOrDub != types_1.SubOrDubOrBoth.BOTH && possibleAnime.subOrDub != expectedType) {
+                if (possibleAnime.subOrDub != types_1.SubOrDubOrBoth.BOTH &&
+                    possibleAnime.subOrDub != expectedType) {
                     return undefined;
                 }
             }
             else if (((!possibleAnime.hasDub && dub) || (!possibleAnime.hasSub && !dub)) &&
-                !this.provider.metaData.name.toLowerCase().includes("animepahe")) {
+                !this.provider.metaData.name.toLowerCase().includes('animepahe')) {
                 return undefined;
             }
             // if (this.provider instanceof Zoro) {
@@ -145,13 +145,13 @@ class Anilist extends types_1.MediaProvier {
             //   possibleAnime.episodes = possibleAnime.episodes.filter((el: any) => el.id != undefined);
             // }
             const possibleProviderEpisodes = possibleAnime.episodes;
-            if (typeof ((_g = possibleProviderEpisodes[0]) === null || _g === void 0 ? void 0 : _g.image) !== "undefined" &&
-                typeof ((_h = possibleProviderEpisodes[0]) === null || _h === void 0 ? void 0 : _h.title) !== "undefined" &&
-                typeof ((_j = possibleProviderEpisodes[0]) === null || _j === void 0 ? void 0 : _j.description) !== "undefined") {
+            if (typeof ((_g = possibleProviderEpisodes[0]) === null || _g === void 0 ? void 0 : _g.image) !== 'undefined' &&
+                typeof ((_h = possibleProviderEpisodes[0]) === null || _h === void 0 ? void 0 : _h.title) !== 'undefined' &&
+                typeof ((_j = possibleProviderEpisodes[0]) === null || _j === void 0 ? void 0 : _j.description) !== 'undefined') {
                 return possibleProviderEpisodes;
             }
             const options = {
-                headers: { "Content-Type": "application/json" },
+                headers: { 'Content-Type': 'application/json' },
                 query: (0, queries_1.kitsuSearchQuery)(slug),
             };
             const newEpisodeList = yield this.findKitsuAnime(possibleProviderEpisodes, options, season, startDate);
@@ -189,14 +189,14 @@ class Anilist extends types_1.MediaProvier {
                         return false;
                     if (this.provider instanceof gogoanime_1.default) {
                         return dub
-                            ? s.title.toLowerCase().includes("dub")
-                            : !s.title.toLowerCase().includes("dub");
+                            ? s.title.toLowerCase().includes('dub')
+                            : !s.title.toLowerCase().includes('dub');
                     }
                     else
                         return true;
                 });
                 if (possibleSource)
-                    return possibleSource.url.split("/").pop();
+                    return possibleSource.url.split('/').pop();
                 if (!this.animapped_api_key)
                     return undefined;
                 const { data: animapped_data } = yield axios_1.default.get(`${this.animapped_api_url}/mal/${malId}?api_key=${this.animapped_api_key}`);
@@ -212,7 +212,9 @@ class Anilist extends types_1.MediaProvier {
                 try {
                     findMapping = Object.entries(findMappingSite[1]).find(([key, v]) => {
                         if (this.provider instanceof gogoanime_1.default) {
-                            return dub ? key.toLowerCase().includes("dub") : !key.toLowerCase().includes("dub");
+                            return dub
+                                ? key.toLowerCase().includes('dub')
+                                : !key.toLowerCase().includes('dub');
                         }
                         else
                             return true;
@@ -238,14 +240,14 @@ class Anilist extends types_1.MediaProvier {
                 const targetTitle = slug.toLowerCase();
                 let firstTitle;
                 let secondTitle;
-                if (typeof a.title == "string")
+                if (typeof a.title == 'string')
                     firstTitle = a.title;
                 else
-                    firstTitle = (_c = (_b = a.title.english) !== null && _b !== void 0 ? _b : a.title.romaji) !== null && _c !== void 0 ? _c : "";
-                if (typeof b.title == "string")
+                    firstTitle = (_c = (_b = a.title.english) !== null && _b !== void 0 ? _b : a.title.romaji) !== null && _c !== void 0 ? _c : '';
+                if (typeof b.title == 'string')
                     secondTitle = b.title;
                 else
-                    secondTitle = (_e = (_d = b.title.english) !== null && _d !== void 0 ? _d : b.title.romaji) !== null && _e !== void 0 ? _e : "";
+                    secondTitle = (_e = (_d = b.title.english) !== null && _d !== void 0 ? _d : b.title.romaji) !== null && _e !== void 0 ? _e : '';
                 const firstRating = (0, utils_1.compareTwoStrings)(targetTitle, firstTitle.toLowerCase());
                 const secondRating = (0, utils_1.compareTwoStrings)(targetTitle, secondTitle.toLowerCase());
                 if (firstRating > topRating) {
@@ -271,22 +273,22 @@ class Anilist extends types_1.MediaProvier {
                     nodes.forEach((node) => {
                         var _b, _c;
                         if (node.season === season &&
-                            node.startDate.trim().split("-")[0] === (startDate === null || startDate === void 0 ? void 0 : startDate.toString())) {
+                            node.startDate.trim().split('-')[0] === (startDate === null || startDate === void 0 ? void 0 : startDate.toString())) {
                             const episodes = node.episodes.nodes;
                             for (const episode of episodes) {
-                                const i = episode === null || episode === void 0 ? void 0 : episode.number.toString().replace(/"/g, "");
+                                const i = episode === null || episode === void 0 ? void 0 : episode.number.toString().replace(/"/g, '');
                                 let name = undefined;
                                 let description = undefined;
                                 let thumbnail = undefined;
                                 if ((_b = episode === null || episode === void 0 ? void 0 : episode.description) === null || _b === void 0 ? void 0 : _b.en)
-                                    description = episode === null || episode === void 0 ? void 0 : episode.description.en.toString().replace(/"/g, "").replace("\\n", "\n");
+                                    description = episode === null || episode === void 0 ? void 0 : episode.description.en.toString().replace(/"/g, '').replace('\\n', '\n');
                                 if (episode === null || episode === void 0 ? void 0 : episode.thumbnail)
-                                    thumbnail = episode === null || episode === void 0 ? void 0 : episode.thumbnail.original.url.toString().replace(/"/g, "");
+                                    thumbnail = episode === null || episode === void 0 ? void 0 : episode.thumbnail.original.url.toString().replace(/"/g, '');
                                 if (episode) {
                                     if ((_c = episode.titles) === null || _c === void 0 ? void 0 : _c.canonical)
-                                        name = episode.titles.canonical.toString().replace(/"/g, "");
+                                        name = episode.titles.canonical.toString().replace(/"/g, '');
                                     episodesList.set(i, {
-                                        episodeNum: episode === null || episode === void 0 ? void 0 : episode.number.toString().replace(/"/g, ""),
+                                        episodeNum: episode === null || episode === void 0 ? void 0 : episode.number.toString().replace(/"/g, ''),
                                         title: name,
                                         description,
                                         createdAt: episode === null || episode === void 0 ? void 0 : episode.createdAt,
@@ -319,8 +321,8 @@ class Anilist extends types_1.MediaProvier {
                         createdAt: (_l = (_j = ep.createdAt) !== null && _j !== void 0 ? _j : (_k = episodesList.get(j)) === null || _k === void 0 ? void 0 : _k.createdAt) !== null && _l !== void 0 ? _l : null,
                         description: (_p = (_m = ep.description) !== null && _m !== void 0 ? _m : (_o = episodesList.get(j)) === null || _o === void 0 ? void 0 : _o.description) !== null && _p !== void 0 ? _p : null,
                         url: (_q = ep.url) !== null && _q !== void 0 ? _q : null,
-                        hasDub: (_r = ep.hasDub) !== null && _r !== void 0 ? _r : "UNKOWN",
-                        hasSub: (_s = ep.hasSub) !== null && _s !== void 0 ? _s : "UNKOWN",
+                        hasDub: (_r = ep.hasDub) !== null && _r !== void 0 ? _r : 'UNKOWN',
+                        hasSub: (_s = ep.hasSub) !== null && _s !== void 0 ? _s : 'UNKOWN',
                     });
                 });
             }
@@ -329,8 +331,8 @@ class Anilist extends types_1.MediaProvier {
         this.getTrendingAnime = (page = 1, perPage = 10) => __awaiter(this, void 0, void 0, function* () {
             const options = {
                 headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
                 },
                 query: (0, queries_1.anilistTrendingQuery)(page, perPage),
             };
@@ -357,15 +359,15 @@ class Anilist extends types_1.MediaProvier {
                                 thumbnail: (_f = item.trailer) === null || _f === void 0 ? void 0 : _f.thumbnail,
                             },
                             description: item.description,
-                            status: item.status == "RELEASING"
+                            status: item.status == 'RELEASING'
                                 ? types_1.MediaStatus.ONGOING
-                                : item.status == "FINISHED"
+                                : item.status == 'FINISHED'
                                     ? types_1.MediaStatus.COMPLETED
-                                    : item.status == "NOT_YET_RELEASED"
+                                    : item.status == 'NOT_YET_RELEASED'
                                         ? types_1.MediaStatus.NOT_YET_AIRED
-                                        : item.status == "CANCELLED"
+                                        : item.status == 'CANCELLED'
                                             ? types_1.MediaStatus.CANCELLED
-                                            : item.status == "HIATUS"
+                                            : item.status == 'HIATUS'
                                                 ? types_1.MediaStatus.HIATUS
                                                 : types_1.MediaStatus.UNKNOWN,
                             cover: (_j = (_h = (_g = item.bannerImage) !== null && _g !== void 0 ? _g : item.coverImage.extraLarge) !== null && _h !== void 0 ? _h : item.coverImage.large) !== null && _j !== void 0 ? _j : item.coverImage.medium,
@@ -390,8 +392,8 @@ class Anilist extends types_1.MediaProvier {
         this.getPopularAnime = (page = 1, perPage = 10) => __awaiter(this, void 0, void 0, function* () {
             const options = {
                 headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
                 },
                 query: (0, queries_1.anilistPopularQuery)(page, perPage),
             };
@@ -418,15 +420,15 @@ class Anilist extends types_1.MediaProvier {
                                 thumbnail: (_f = item.trailer) === null || _f === void 0 ? void 0 : _f.thumbnail,
                             },
                             description: item.description,
-                            status: item.status == "RELEASING"
+                            status: item.status == 'RELEASING'
                                 ? types_1.MediaStatus.ONGOING
-                                : item.status == "FINISHED"
+                                : item.status == 'FINISHED'
                                     ? types_1.MediaStatus.COMPLETED
-                                    : item.status == "NOT_YET_RELEASED"
+                                    : item.status == 'NOT_YET_RELEASED'
                                         ? types_1.MediaStatus.NOT_YET_AIRED
-                                        : item.status == "CANCELLED"
+                                        : item.status == 'CANCELLED'
                                             ? types_1.MediaStatus.CANCELLED
-                                            : item.status == "HIATUS"
+                                            : item.status == 'HIATUS'
                                                 ? types_1.MediaStatus.HIATUS
                                                 : types_1.MediaStatus.UNKNOWN,
                             cover: (_j = (_h = (_g = item.bannerImage) !== null && _g !== void 0 ? _g : item.coverImage.extraLarge) !== null && _h !== void 0 ? _h : item.coverImage.large) !== null && _j !== void 0 ? _j : item.coverImage.medium,
@@ -450,16 +452,16 @@ class Anilist extends types_1.MediaProvier {
         });
         this.getAiringSchedule = (page = 1, perPage = 20, weekStart = (new Date().getDay() + 1) % 7, weekEnd = (new Date().getDay() + 7) % 7, notYetAired = false) => __awaiter(this, void 0, void 0, function* () {
             let day1, day2 = undefined;
-            if (typeof weekStart === "string" && typeof weekEnd === "string")
+            if (typeof weekStart === 'string' && typeof weekEnd === 'string')
                 [day1, day2] = (0, utils_1.getDays)((0, utils_1.capitalizeFirstLetter)(weekStart.toLowerCase()), (0, utils_1.capitalizeFirstLetter)(weekEnd.toLowerCase()));
-            else if (typeof weekStart === "number" && typeof weekEnd === "number")
+            else if (typeof weekStart === 'number' && typeof weekEnd === 'number')
                 [day1, day2] = [weekStart, weekEnd];
             else
-                throw new Error("Invalid weekStart or weekEnd");
+                throw new Error('Invalid weekStart or weekEnd');
             const options = {
                 headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
                 },
                 query: (0, queries_1.anilistAiringScheduleQuery)(page, perPage, day1, day2, notYetAired),
             };
@@ -502,8 +504,8 @@ class Anilist extends types_1.MediaProvier {
         this.getRandomAnime = () => __awaiter(this, void 0, void 0, function* () {
             const options = {
                 headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
                 },
                 query: (0, queries_1.anilistSiteStatisticsQuery)(),
             };
@@ -515,8 +517,8 @@ class Anilist extends types_1.MediaProvier {
                 //   Math.random() * data.SiteStatistics.anime.nodes[data.SiteStatistics.anime.nodes.length - 1].count
                 // );
                 // const { results } = await this.advancedSearch(undefined, 'ANIME', Math.ceil(selectedAnime / 50), 50);
-                const { data: data } = yield this.client.get("https://raw.githubusercontent.com/TDanks2000/anilistIds/main/anime_ids.txt");
-                const ids = data === null || data === void 0 ? void 0 : data.trim().split("\n");
+                const { data: data } = yield this.client.get('https://raw.githubusercontent.com/TDanks2000/anilistIds/main/anime_ids.txt');
+                const ids = data === null || data === void 0 ? void 0 : data.trim().split('\n');
                 const selectedAnime = Math.floor(Math.random() * ids.length);
                 return yield this.getMediaInfo(ids[selectedAnime]);
             }
@@ -525,18 +527,18 @@ class Anilist extends types_1.MediaProvier {
             }
         });
         this.getStaffById = (id) => __awaiter(this, void 0, void 0, function* () {
-            throw new Error("Not implemented yet");
+            throw new Error('Not implemented yet');
         });
         this.getAnimeGenres = (genres, page = 1, perPage = 20) => __awaiter(this, void 0, void 0, function* () {
             if (genres.length === 0)
-                throw new Error("No genres specified");
+                throw new Error('No genres specified');
             for (const genre of genres)
                 if (!Object.values(types_1.Genres).includes(genre))
-                    throw new Error("Invalid genre");
+                    throw new Error('Invalid genre');
             const options = {
                 headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
                 },
                 query: (0, queries_1.anilistGenresQuery)(genres, page, perPage),
             };
@@ -586,18 +588,20 @@ class Anilist extends types_1.MediaProvier {
             var _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10;
             const animeInfo = {
                 id: id,
-                title: "",
+                title: '',
             };
             const options = {
                 headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
                 },
                 query: (0, queries_1.anilistMediaDetailQuery)(id),
             };
             try {
-                const { data } = yield this.client.post(this.anilistGraphqlUrl, options).catch(() => {
-                    throw new Error("Media not found");
+                const { data } = yield this.client
+                    .post(this.anilistGraphqlUrl, options)
+                    .catch(() => {
+                    throw new Error('Media not found');
                 });
                 animeInfo.malId = data.data.Media.idMal;
                 animeInfo.title = {
@@ -622,19 +626,19 @@ class Anilist extends types_1.MediaProvier {
                 animeInfo.cover = (_s = data.data.Media.bannerImage) !== null && _s !== void 0 ? _s : animeInfo.image;
                 animeInfo.description = data.data.Media.description;
                 switch (data.data.Media.status) {
-                    case "RELEASING":
+                    case 'RELEASING':
                         animeInfo.status = types_1.MediaStatus.ONGOING;
                         break;
-                    case "FINISHED":
+                    case 'FINISHED':
                         animeInfo.status = types_1.MediaStatus.COMPLETED;
                         break;
-                    case "NOT_YET_RELEASED":
+                    case 'NOT_YET_RELEASED':
                         animeInfo.status = types_1.MediaStatus.NOT_YET_AIRED;
                         break;
-                    case "CANCELLED":
+                    case 'CANCELLED':
                         animeInfo.status = types_1.MediaStatus.CANCELLED;
                         break;
-                    case "HIATUS":
+                    case 'HIATUS':
                         animeInfo.status = types_1.MediaStatus.HIATUS;
                     default:
                         animeInfo.status = types_1.MediaStatus.UNKNOWN;
@@ -679,15 +683,15 @@ class Anilist extends types_1.MediaProvier {
                             native: item.node.mediaRecommendation.title.native,
                             userPreferred: item.node.mediaRecommendation.title.userPreferred,
                         },
-                        status: item.node.mediaRecommendation.status == "RELEASING"
+                        status: item.node.mediaRecommendation.status == 'RELEASING'
                             ? types_1.MediaStatus.ONGOING
-                            : item.node.mediaRecommendation.status == "FINISHED"
+                            : item.node.mediaRecommendation.status == 'FINISHED'
                                 ? types_1.MediaStatus.COMPLETED
-                                : item.node.mediaRecommendation.status == "NOT_YET_RELEASED"
+                                : item.node.mediaRecommendation.status == 'NOT_YET_RELEASED'
                                     ? types_1.MediaStatus.NOT_YET_AIRED
-                                    : item.node.mediaRecommendation.status == "CANCELLED"
+                                    : item.node.mediaRecommendation.status == 'CANCELLED'
                                         ? types_1.MediaStatus.CANCELLED
-                                        : item.node.mediaRecommendation.status == "HIATUS"
+                                        : item.node.mediaRecommendation.status == 'HIATUS'
                                             ? types_1.MediaStatus.HIATUS
                                             : types_1.MediaStatus.UNKNOWN,
                         episodes: item.node.mediaRecommendation.episodes,
@@ -740,15 +744,15 @@ class Anilist extends types_1.MediaProvier {
                             native: item.node.title.native,
                             userPreferred: item.node.title.userPreferred,
                         },
-                        status: item.node.status == "RELEASING"
+                        status: item.node.status == 'RELEASING'
                             ? types_1.MediaStatus.ONGOING
-                            : item.node.status == "FINISHED"
+                            : item.node.status == 'FINISHED'
                                 ? types_1.MediaStatus.COMPLETED
-                                : item.node.status == "NOT_YET_RELEASED"
+                                : item.node.status == 'NOT_YET_RELEASED'
                                     ? types_1.MediaStatus.NOT_YET_AIRED
-                                    : item.node.status == "CANCELLED"
+                                    : item.node.status == 'CANCELLED'
                                         ? types_1.MediaStatus.CANCELLED
-                                        : item.node.status == "HIATUS"
+                                        : item.node.status == 'HIATUS'
                                             ? types_1.MediaStatus.HIATUS
                                             : types_1.MediaStatus.UNKNOWN,
                         episodes: item.node.episodes,
@@ -768,8 +772,8 @@ class Anilist extends types_1.MediaProvier {
             var _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42, _43;
             const options = {
                 headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
                 },
                 query: (0, queries_1.anilistCharacterQuery)(),
                 variables: {
@@ -780,37 +784,42 @@ class Anilist extends types_1.MediaProvier {
                 const { data: { data: { Character }, }, } = yield this.client.post(this.anilistGraphqlUrl, options);
                 const height = (_11 = Character.description.match(/__Height:__(.*)/)) === null || _11 === void 0 ? void 0 : _11[1].trim();
                 const weight = (_12 = Character.description.match(/__Weight:__(.*)/)) === null || _12 === void 0 ? void 0 : _12[1].trim();
-                const hairColor = (_13 = Character.description.match(/__Hair Color:__(.*)/)) === null || _13 === void 0 ? void 0 : _13[1].trim();
-                const eyeColor = (_14 = Character.description.match(/__Eye Color:__(.*)/)) === null || _14 === void 0 ? void 0 : _14[1].trim();
+                const hairColor = (_13 = Character.description
+                    .match(/__Hair Color:__(.*)/)) === null || _13 === void 0 ? void 0 : _13[1].trim();
+                const eyeColor = (_14 = Character.description
+                    .match(/__Eye Color:__(.*)/)) === null || _14 === void 0 ? void 0 : _14[1].trim();
                 const relatives = (_15 = Character.description
-                    .match(/__Relatives:__(.*)/)) === null || _15 === void 0 ? void 0 : _15[1].trim().split(/(, \[)/g).filter((g) => !g.includes(", [")).map((r) => {
+                    .match(/__Relatives:__(.*)/)) === null || _15 === void 0 ? void 0 : _15[1].trim().split(/(, \[)/g).filter((g) => !g.includes(', [')).map((r) => {
                     var _b, _c, _d;
                     return ({
                         id: (_b = r.match(/\/(\d+)/)) === null || _b === void 0 ? void 0 : _b[1],
-                        name: (_c = r.match(/([^)]+)\]/)) === null || _c === void 0 ? void 0 : _c[1].replace(/\[/g, ""),
+                        name: (_c = r.match(/([^)]+)\]/)) === null || _c === void 0 ? void 0 : _c[1].replace(/\[/g, ''),
                         relationship: (_d = r.match(/\(([^)]+)\).*?(\(([^)]+)\))/)) === null || _d === void 0 ? void 0 : _d[3],
                     });
                 });
                 const race = (_16 = Character.description
-                    .match(/__Race:__(.*)/)) === null || _16 === void 0 ? void 0 : _16[1].split(", ").map((r) => r.trim());
+                    .match(/__Race:__(.*)/)) === null || _16 === void 0 ? void 0 : _16[1].split(', ').map((r) => r.trim());
                 const rank = (_17 = Character.description.match(/__Rank:__(.*)/)) === null || _17 === void 0 ? void 0 : _17[1];
                 const occupation = (_18 = Character.description.match(/__Occupation:__(.*)/)) === null || _18 === void 0 ? void 0 : _18[1];
                 const previousPosition = (_20 = (_19 = Character.description
                     .match(/__Previous Position:__(.*)/)) === null || _19 === void 0 ? void 0 : _19[1]) === null || _20 === void 0 ? void 0 : _20.trim();
                 const partner = (_21 = Character.description
-                    .match(/__Partner:__(.*)/)) === null || _21 === void 0 ? void 0 : _21[1].split(/(, \[)/g).filter((g) => !g.includes(", [")).map((r) => {
+                    .match(/__Partner:__(.*)/)) === null || _21 === void 0 ? void 0 : _21[1].split(/(, \[)/g).filter((g) => !g.includes(', [')).map((r) => {
                     var _b, _c;
                     return ({
                         id: (_b = r.match(/\/(\d+)/)) === null || _b === void 0 ? void 0 : _b[1],
-                        name: (_c = r.match(/([^)]+)\]/)) === null || _c === void 0 ? void 0 : _c[1].replace(/\[/g, ""),
+                        name: (_c = r.match(/([^)]+)\]/)) === null || _c === void 0 ? void 0 : _c[1].replace(/\[/g, ''),
                     });
                 });
                 const dislikes = (_22 = Character.description.match(/__Dislikes:__(.*)/)) === null || _22 === void 0 ? void 0 : _22[1];
                 const sign = (_23 = Character.description.match(/__Sign:__(.*)/)) === null || _23 === void 0 ? void 0 : _23[1];
-                const zodicSign = (_25 = (_24 = Character.description.match(/__Zodiac sign:__(.*)/)) === null || _24 === void 0 ? void 0 : _24[1]) === null || _25 === void 0 ? void 0 : _25.trim();
-                const zodicAnimal = (_27 = (_26 = Character.description.match(/__Zodiac Animal:__(.*)/)) === null || _26 === void 0 ? void 0 : _26[1]) === null || _27 === void 0 ? void 0 : _27.trim();
-                const themeSong = (_29 = (_28 = Character.description.match(/__Theme Song:__(.*)/)) === null || _28 === void 0 ? void 0 : _28[1]) === null || _29 === void 0 ? void 0 : _29.trim();
-                Character.description = Character.description.replace(/__Theme Song:__(.*)\n|__Race:__(.*)\n|__Height:__(.*)\n|__Relatives:__(.*)\n|__Rank:__(.*)\n|__Zodiac sign:__(.*)\n|__Zodiac Animal:__(.*)\n|__Weight:__(.*)\n|__Eye Color:__(.*)\n|__Hair Color:__(.*)\n|__Dislikes:__(.*)\n|__Sign:__(.*)\n|__Partner:__(.*)\n|__Previous Position:__(.*)\n|__Occupation:__(.*)\n/gm, "");
+                const zodicSign = (_25 = (_24 = Character.description
+                    .match(/__Zodiac sign:__(.*)/)) === null || _24 === void 0 ? void 0 : _24[1]) === null || _25 === void 0 ? void 0 : _25.trim();
+                const zodicAnimal = (_27 = (_26 = Character.description
+                    .match(/__Zodiac Animal:__(.*)/)) === null || _26 === void 0 ? void 0 : _26[1]) === null || _27 === void 0 ? void 0 : _27.trim();
+                const themeSong = (_29 = (_28 = Character.description
+                    .match(/__Theme Song:__(.*)/)) === null || _28 === void 0 ? void 0 : _28[1]) === null || _29 === void 0 ? void 0 : _29.trim();
+                Character.description = Character.description.replace(/__Theme Song:__(.*)\n|__Race:__(.*)\n|__Height:__(.*)\n|__Relatives:__(.*)\n|__Rank:__(.*)\n|__Zodiac sign:__(.*)\n|__Zodiac Animal:__(.*)\n|__Weight:__(.*)\n|__Eye Color:__(.*)\n|__Hair Color:__(.*)\n|__Dislikes:__(.*)\n|__Sign:__(.*)\n|__Partner:__(.*)\n|__Previous Position:__(.*)\n|__Occupation:__(.*)\n/gm, '');
                 const characterInfo = {
                     id: Character.id,
                     name: {
@@ -859,15 +868,15 @@ class Anilist extends types_1.MediaProvier {
                                 native: (_d = v.node.title) === null || _d === void 0 ? void 0 : _d.native,
                                 userPreferred: (_e = v.node.title) === null || _e === void 0 ? void 0 : _e.userPreferred,
                             },
-                            status: v.node.status == "RELEASING"
+                            status: v.node.status == 'RELEASING'
                                 ? types_1.MediaStatus.ONGOING
-                                : v.node.status == "FINISHED"
+                                : v.node.status == 'FINISHED'
                                     ? types_1.MediaStatus.COMPLETED
-                                    : v.node.status == "NOT_YET_RELEASED"
+                                    : v.node.status == 'NOT_YET_RELEASED'
                                         ? types_1.MediaStatus.NOT_YET_AIRED
-                                        : v.node.status == "CANCELLED"
+                                        : v.node.status == 'CANCELLED'
                                             ? types_1.MediaStatus.CANCELLED
-                                            : v.node.status == "HIATUS"
+                                            : v.node.status == 'HIATUS'
                                                 ? types_1.MediaStatus.HIATUS
                                                 : types_1.MediaStatus.UNKNOWN,
                             episodes: v.node.episodes,
@@ -886,7 +895,7 @@ class Anilist extends types_1.MediaProvier {
             }
         });
         this.findMangaSlug = (provider, title, malId) => __awaiter(this, void 0, void 0, function* () {
-            const slug = title.replace(/[^0-9a-zA-Z]+/g, " ");
+            const slug = title.replace(/[^0-9a-zA-Z]+/g, ' ');
             let possibleManga;
             if (!malId) {
                 possibleManga = yield this.findMangaRaw(provider, slug, title);
@@ -900,7 +909,11 @@ class Anilist extends types_1.MediaProvier {
             const sitesT = malAsyncReq.data.Sites;
             let sites = Object.values(sitesT).map((v, i) => {
                 const obj = [...Object.values(Object.values(sitesT)[i])];
-                const pages = obj.map((v) => ({ page: v.page, url: v.url, title: v.title }));
+                const pages = obj.map((v) => ({
+                    page: v.page,
+                    url: v.url,
+                    title: v.title,
+                }));
                 return pages;
             });
             sites = sites.flat();
@@ -913,7 +926,7 @@ class Anilist extends types_1.MediaProvier {
             });
             const possibleSource = sites.find((s) => s.page.toLowerCase() === provider.metaData.name.toLowerCase());
             if (possibleSource) {
-                possibleManga = yield provider.getMediaInfo(possibleSource.url.split("/").pop());
+                possibleManga = yield provider.getMediaInfo(possibleSource.url.split('/').pop());
             }
             else {
                 possibleManga = yield this.findMangaRaw(provider, slug, title);
@@ -926,7 +939,8 @@ class Anilist extends types_1.MediaProvier {
             if (findAnime.results.length === 0)
                 return [];
             // TODO: use much better way than this
-            const possibleManga = findAnime.results.find((manga) => title.toLowerCase() == (typeof manga.title === "string" ? manga.title.toLowerCase() : ""));
+            const possibleManga = findAnime.results.find((manga) => title.toLowerCase() ==
+                (typeof manga.title === 'string' ? manga.title.toLowerCase() : ''));
             if (!possibleManga) {
                 return (yield provider.getMediaInfo(findAnime.results[0].id));
             }
@@ -948,15 +962,15 @@ class Anilist extends types_1.MediaProvier {
             return englishPossibleEpisodes;
         });
         this.provider = provider || new gogoanime_1.default();
-        this.animapped_api_key = animapped_api_key !== null && animapped_api_key !== void 0 ? animapped_api_key : "";
+        this.animapped_api_key = animapped_api_key !== null && animapped_api_key !== void 0 ? animapped_api_key : '';
     }
     search(query, page = 1, perPage = 15) {
         var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
         return __awaiter(this, void 0, void 0, function* () {
             const options = {
                 headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
                 },
                 query: (0, queries_1.anilistSearchQuery)(query, page, perPage),
             };
@@ -978,15 +992,15 @@ class Anilist extends types_1.MediaProvier {
                                 native: item.title.native,
                                 userPreferred: item.title.userPreferred,
                             } || item.title.romaji,
-                            status: item.status == "RELEASING"
+                            status: item.status == 'RELEASING'
                                 ? types_1.MediaStatus.ONGOING
-                                : item.status == "FINISHED"
+                                : item.status == 'FINISHED'
                                     ? types_1.MediaStatus.COMPLETED
-                                    : item.status == "NOT_YET_RELEASED"
+                                    : item.status == 'NOT_YET_RELEASED'
                                         ? types_1.MediaStatus.NOT_YET_AIRED
-                                        : item.status == "CANCELLED"
+                                        : item.status == 'CANCELLED'
                                             ? types_1.MediaStatus.CANCELLED
-                                            : item.status == "HIATUS"
+                                            : item.status == 'HIATUS'
                                                 ? types_1.MediaStatus.HIATUS
                                                 : types_1.MediaStatus.UNKNOWN,
                             image: (_e = (_c = (_b = item.coverImage) === null || _b === void 0 ? void 0 : _b.extraLarge) !== null && _c !== void 0 ? _c : (_d = item.coverImage) === null || _d === void 0 ? void 0 : _d.large) !== null && _e !== void 0 ? _e : (_f = item.coverImage) === null || _f === void 0 ? void 0 : _f.medium,
@@ -1007,17 +1021,17 @@ class Anilist extends types_1.MediaProvier {
                         var _b, _c;
                         return ({
                             id: item.anilistId.toString(),
-                            malId: item.mappings["mal"],
+                            malId: item.mappings['mal'],
                             title: item.title,
-                            status: item.status == "RELEASING"
+                            status: item.status == 'RELEASING'
                                 ? types_1.MediaStatus.ONGOING
-                                : item.status == "FINISHED"
+                                : item.status == 'FINISHED'
                                     ? types_1.MediaStatus.COMPLETED
-                                    : item.status == "NOT_YET_RELEASED"
+                                    : item.status == 'NOT_YET_RELEASED'
                                         ? types_1.MediaStatus.NOT_YET_AIRED
-                                        : item.status == "CANCELLED"
+                                        : item.status == 'CANCELLED'
                                             ? types_1.MediaStatus.CANCELLED
-                                            : item.status == "HIATUS"
+                                            : item.status == 'HIATUS'
                                                 ? types_1.MediaStatus.HIATUS
                                                 : types_1.MediaStatus.UNKNOWN,
                             image: (_b = item.coverImage) !== null && _b !== void 0 ? _b : item.bannerImage,
@@ -1043,13 +1057,13 @@ class Anilist extends types_1.MediaProvier {
             }
         });
     }
-    advancedSearch({ query, type = "ANIME", page = 1, perPage = 20, format, sort, genres, id, year, status, season, }) {
+    advancedSearch({ query, type = 'ANIME', page = 1, perPage = 20, format, sort, genres, id, year, status, season, }) {
         var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y;
         return __awaiter(this, void 0, void 0, function* () {
             const options = {
                 headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
                 },
                 query: (0, queries_1.anilistAdvancedQuery)(),
                 variables: {
@@ -1078,7 +1092,7 @@ class Anilist extends types_1.MediaProvier {
                     validateStatus: () => true,
                 });
                 if (status >= 500 && !query)
-                    throw new Error("No results found");
+                    throw new Error('No results found');
                 const res = {
                     currentPage: (_e = (_d = (_c = (_b = data.data) === null || _b === void 0 ? void 0 : _b.Page) === null || _c === void 0 ? void 0 : _c.pageInfo) === null || _d === void 0 ? void 0 : _d.currentPage) !== null && _e !== void 0 ? _e : (_f = data.meta) === null || _f === void 0 ? void 0 : _f.currentPage,
                     hasNextPage: (_k = (_j = (_h = (_g = data.data) === null || _g === void 0 ? void 0 : _g.Page) === null || _h === void 0 ? void 0 : _h.pageInfo) === null || _j === void 0 ? void 0 : _j.hasNextPage) !== null && _k !== void 0 ? _k : ((_l = data.meta) === null || _l === void 0 ? void 0 : _l.currentPage) != ((_m = data.meta) === null || _m === void 0 ? void 0 : _m.lastPage),
@@ -1097,15 +1111,15 @@ class Anilist extends types_1.MediaProvier {
                             native: item.title.native,
                             userPreferred: item.title.userPreferred,
                         } || item.title.romaji,
-                        status: item.status == "RELEASING"
+                        status: item.status == 'RELEASING'
                             ? types_1.MediaStatus.ONGOING
-                            : item.status == "FINISHED"
+                            : item.status == 'FINISHED'
                                 ? types_1.MediaStatus.COMPLETED
-                                : item.status == "NOT_YET_RELEASED"
+                                : item.status == 'NOT_YET_RELEASED'
                                     ? types_1.MediaStatus.NOT_YET_AIRED
-                                    : item.status == "CANCELLED"
+                                    : item.status == 'CANCELLED'
                                         ? types_1.MediaStatus.CANCELLED
-                                        : item.status == "HIATUS"
+                                        : item.status == 'HIATUS'
                                             ? types_1.MediaStatus.HIATUS
                                             : types_1.MediaStatus.UNKNOWN,
                         image: (_c = (_b = item.coverImage.extraLarge) !== null && _b !== void 0 ? _b : item.coverImage.large) !== null && _c !== void 0 ? _c : item.coverImage.medium,
@@ -1125,17 +1139,17 @@ class Anilist extends types_1.MediaProvier {
                     var _b;
                     return ({
                         id: item.anilistId.toString(),
-                        malId: item.mappings["mal"],
+                        malId: item.mappings['mal'],
                         title: item.title,
-                        status: item.status == "RELEASING"
+                        status: item.status == 'RELEASING'
                             ? types_1.MediaStatus.ONGOING
-                            : item.status == "FINISHED"
+                            : item.status == 'FINISHED'
                                 ? types_1.MediaStatus.COMPLETED
-                                : item.status == "NOT_YET_RELEASED"
+                                : item.status == 'NOT_YET_RELEASED'
                                     ? types_1.MediaStatus.NOT_YET_AIRED
-                                    : item.status == "CANCELLED"
+                                    : item.status == 'CANCELLED'
                                         ? types_1.MediaStatus.CANCELLED
-                                        : item.status == "HIATUS"
+                                        : item.status == 'HIATUS'
                                             ? types_1.MediaStatus.HIATUS
                                             : types_1.MediaStatus.UNKNOWN,
                         image: (_b = item.coverImage) !== null && _b !== void 0 ? _b : item.bannerImage,
@@ -1162,12 +1176,12 @@ class Anilist extends types_1.MediaProvier {
         return __awaiter(this, void 0, void 0, function* () {
             const animeInfo = {
                 id: id,
-                title: "",
+                title: '',
             };
             const options = {
                 headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
                 },
                 query: (0, queries_1.anilistMediaDetailQuery)(id),
             };
@@ -1177,13 +1191,13 @@ class Anilist extends types_1.MediaProvier {
                     validateStatus: () => true,
                 });
                 if (status == 404)
-                    throw new Error("Media not found. Perhaps the id is invalid or the anime is not in anilist");
+                    throw new Error('Media not found. Perhaps the id is invalid or the anime is not in anilist');
                 if (status == 429)
-                    throw new Error("You have been ratelimited by anilist. Please try again later");
+                    throw new Error('You have been ratelimited by anilist. Please try again later');
                 if (status >= 500)
-                    throw new Error("Anilist seems to be down. Please try again later");
+                    throw new Error('Anilist seems to be down. Please try again later');
                 if (status != 200 && status < 429)
-                    throw Error("Media not found. If the problem persists, please contact the developer");
+                    throw Error('Media not found. If the problem persists, please contact the developer');
                 animeInfo.malId = (_d = (_c = (_b = data.data) === null || _b === void 0 ? void 0 : _b.Media) === null || _c === void 0 ? void 0 : _c.idMal) !== null && _d !== void 0 ? _d : (_e = data === null || data === void 0 ? void 0 : data.mappings) === null || _e === void 0 ? void 0 : _e.mal;
                 animeInfo.title = ((_f = data === null || data === void 0 ? void 0 : data.data) === null || _f === void 0 ? void 0 : _f.Media)
                     ? {
@@ -1208,22 +1222,23 @@ class Anilist extends types_1.MediaProvier {
                     (_18 = (_17 = (_13 = (_9 = (_8 = (_7 = (_6 = data.data) === null || _6 === void 0 ? void 0 : _6.Media) === null || _7 === void 0 ? void 0 : _7.coverImage) === null || _8 === void 0 ? void 0 : _8.extraLarge) !== null && _9 !== void 0 ? _9 : (_12 = (_11 = (_10 = data.data) === null || _10 === void 0 ? void 0 : _10.Media) === null || _11 === void 0 ? void 0 : _11.coverImage) === null || _12 === void 0 ? void 0 : _12.large) !== null && _13 !== void 0 ? _13 : (_16 = (_15 = (_14 = data.data) === null || _14 === void 0 ? void 0 : _14.Media) === null || _15 === void 0 ? void 0 : _15.coverImage) === null || _16 === void 0 ? void 0 : _16.medium) !== null && _17 !== void 0 ? _17 : data === null || data === void 0 ? void 0 : data.coverImage) !== null && _18 !== void 0 ? _18 : data === null || data === void 0 ? void 0 : data.bannerImage;
                 animeInfo.popularity = (_21 = (_20 = (_19 = data.data) === null || _19 === void 0 ? void 0 : _19.Media) === null || _20 === void 0 ? void 0 : _20.popularity) !== null && _21 !== void 0 ? _21 : data === null || data === void 0 ? void 0 : data.popularity;
                 animeInfo.color = (_25 = (_24 = (_23 = (_22 = data.data) === null || _22 === void 0 ? void 0 : _22.Media) === null || _23 === void 0 ? void 0 : _23.coverImage) === null || _24 === void 0 ? void 0 : _24.color) !== null && _25 !== void 0 ? _25 : data === null || data === void 0 ? void 0 : data.color;
-                animeInfo.cover = (_29 = (_28 = (_27 = (_26 = data.data) === null || _26 === void 0 ? void 0 : _26.Media) === null || _27 === void 0 ? void 0 : _27.bannerImage) !== null && _28 !== void 0 ? _28 : data === null || data === void 0 ? void 0 : data.bannerImage) !== null && _29 !== void 0 ? _29 : animeInfo.image;
+                animeInfo.cover =
+                    (_29 = (_28 = (_27 = (_26 = data.data) === null || _26 === void 0 ? void 0 : _26.Media) === null || _27 === void 0 ? void 0 : _27.bannerImage) !== null && _28 !== void 0 ? _28 : data === null || data === void 0 ? void 0 : data.bannerImage) !== null && _29 !== void 0 ? _29 : animeInfo.image;
                 animeInfo.description = (_32 = (_31 = (_30 = data.data) === null || _30 === void 0 ? void 0 : _30.Media) === null || _31 === void 0 ? void 0 : _31.description) !== null && _32 !== void 0 ? _32 : data === null || data === void 0 ? void 0 : data.description;
                 switch ((_35 = (_34 = (_33 = data.data) === null || _33 === void 0 ? void 0 : _33.Media) === null || _34 === void 0 ? void 0 : _34.status) !== null && _35 !== void 0 ? _35 : data === null || data === void 0 ? void 0 : data.status) {
-                    case "RELEASING":
+                    case 'RELEASING':
                         animeInfo.status = types_1.MediaStatus.ONGOING;
                         break;
-                    case "FINISHED":
+                    case 'FINISHED':
                         animeInfo.status = types_1.MediaStatus.COMPLETED;
                         break;
-                    case "NOT_YET_RELEASED":
+                    case 'NOT_YET_RELEASED':
                         animeInfo.status = types_1.MediaStatus.NOT_YET_AIRED;
                         break;
-                    case "CANCELLED":
+                    case 'CANCELLED':
                         animeInfo.status = types_1.MediaStatus.CANCELLED;
                         break;
-                    case "HIATUS":
+                    case 'HIATUS':
                         animeInfo.status = types_1.MediaStatus.HIATUS;
                     default:
                         animeInfo.status = types_1.MediaStatus.UNKNOWN;
@@ -1268,15 +1283,15 @@ class Anilist extends types_1.MediaProvier {
                             native: (_j = (_h = item.node.mediaRecommendation) === null || _h === void 0 ? void 0 : _h.title) === null || _j === void 0 ? void 0 : _j.native,
                             userPreferred: (_l = (_k = item.node.mediaRecommendation) === null || _k === void 0 ? void 0 : _k.title) === null || _l === void 0 ? void 0 : _l.userPreferred,
                         },
-                        status: ((_m = item.node.mediaRecommendation) === null || _m === void 0 ? void 0 : _m.status) == "RELEASING"
+                        status: ((_m = item.node.mediaRecommendation) === null || _m === void 0 ? void 0 : _m.status) == 'RELEASING'
                             ? types_1.MediaStatus.ONGOING
-                            : ((_o = item.node.mediaRecommendation) === null || _o === void 0 ? void 0 : _o.status) == "FINISHED"
+                            : ((_o = item.node.mediaRecommendation) === null || _o === void 0 ? void 0 : _o.status) == 'FINISHED'
                                 ? types_1.MediaStatus.COMPLETED
-                                : ((_p = item.node.mediaRecommendation) === null || _p === void 0 ? void 0 : _p.status) == "NOT_YET_RELEASED"
+                                : ((_p = item.node.mediaRecommendation) === null || _p === void 0 ? void 0 : _p.status) == 'NOT_YET_RELEASED'
                                     ? types_1.MediaStatus.NOT_YET_AIRED
-                                    : ((_q = item.node.mediaRecommendation) === null || _q === void 0 ? void 0 : _q.status) == "CANCELLED"
+                                    : ((_q = item.node.mediaRecommendation) === null || _q === void 0 ? void 0 : _q.status) == 'CANCELLED'
                                         ? types_1.MediaStatus.CANCELLED
-                                        : ((_r = item.node.mediaRecommendation) === null || _r === void 0 ? void 0 : _r.status) == "HIATUS"
+                                        : ((_r = item.node.mediaRecommendation) === null || _r === void 0 ? void 0 : _r.status) == 'HIATUS'
                                             ? types_1.MediaStatus.HIATUS
                                             : types_1.MediaStatus.UNKNOWN,
                         episodes: (_s = item.node.mediaRecommendation) === null || _s === void 0 ? void 0 : _s.episodes,
@@ -1328,15 +1343,15 @@ class Anilist extends types_1.MediaProvier {
                             native: item.node.title.native,
                             userPreferred: item.node.title.userPreferred,
                         },
-                        status: item.node.status == "RELEASING"
+                        status: item.node.status == 'RELEASING'
                             ? types_1.MediaStatus.ONGOING
-                            : item.node.status == "FINISHED"
+                            : item.node.status == 'FINISHED'
                                 ? types_1.MediaStatus.COMPLETED
-                                : item.node.status == "NOT_YET_RELEASED"
+                                : item.node.status == 'NOT_YET_RELEASED'
                                     ? types_1.MediaStatus.NOT_YET_AIRED
-                                    : item.node.status == "CANCELLED"
+                                    : item.node.status == 'CANCELLED'
                                         ? types_1.MediaStatus.CANCELLED
-                                        : item.node.status == "HIATUS"
+                                        : item.node.status == 'HIATUS'
                                             ? types_1.MediaStatus.HIATUS
                                             : types_1.MediaStatus.UNKNOWN,
                         episodes: item.node.episodes,
@@ -1356,7 +1371,10 @@ class Anilist extends types_1.MediaProvier {
                             idMal: animeInfo.malId,
                             season: data.data.Media.season,
                             startDate: { year: parseInt(animeInfo.releaseDate) },
-                            title: { english: (_96 = animeInfo.title) === null || _96 === void 0 ? void 0 : _96.english, romaji: (_97 = animeInfo.title) === null || _97 === void 0 ? void 0 : _97.romaji },
+                            title: {
+                                english: (_96 = animeInfo.title) === null || _96 === void 0 ? void 0 : _96.english,
+                                romaji: (_97 = animeInfo.title) === null || _97 === void 0 ? void 0 : _97.romaji,
+                            },
                         }, dub, id);
                         animeInfo.episodes = (_98 = animeInfo.episodes) === null || _98 === void 0 ? void 0 : _98.map((episode) => {
                             if (!episode.image)
@@ -1369,7 +1387,10 @@ class Anilist extends types_1.MediaProvier {
                             idMal: animeInfo.malId,
                             season: data.data.Media.season,
                             startDate: { year: parseInt(animeInfo.releaseDate) },
-                            title: { english: (_99 = animeInfo.title) === null || _99 === void 0 ? void 0 : _99.english, romaji: (_100 = animeInfo.title) === null || _100 === void 0 ? void 0 : _100.romaji },
+                            title: {
+                                english: (_99 = animeInfo.title) === null || _99 === void 0 ? void 0 : _99.english,
+                                romaji: (_100 = animeInfo.title) === null || _100 === void 0 ? void 0 : _100.romaji,
+                            },
                         }, dub, id);
                         animeInfo.episodes = (_101 = animeInfo.episodes) === null || _101 === void 0 ? void 0 : _101.map((episode) => {
                             if (!episode.image)
@@ -1384,8 +1405,11 @@ class Anilist extends types_1.MediaProvier {
                         idMal: animeInfo.malId,
                         season: data.data.Media.season,
                         startDate: { year: parseInt(animeInfo.releaseDate) },
-                        title: { english: (_102 = animeInfo.title) === null || _102 === void 0 ? void 0 : _102.english, romaji: (_103 = animeInfo.title) === null || _103 === void 0 ? void 0 : _103.romaji },
-                        externalLinks: data.data.Media.externalLinks.filter((link) => link.type === "STREAMING"),
+                        title: {
+                            english: (_102 = animeInfo.title) === null || _102 === void 0 ? void 0 : _102.english,
+                            romaji: (_103 = animeInfo.title) === null || _103 === void 0 ? void 0 : _103.romaji,
+                        },
+                        externalLinks: data.data.Media.externalLinks.filter((link) => link.type === 'STREAMING'),
                     }, dub, id);
                 animeInfo.episodes = (_104 = animeInfo.episodes) === null || _104 === void 0 ? void 0 : _104.map((episode) => {
                     if (!episode.image)
@@ -1394,7 +1418,7 @@ class Anilist extends types_1.MediaProvier {
                 });
                 if (fetchFiller) {
                     const { data: fillerData } = yield this.client.get(`https://raw.githubusercontent.com/TobyBridle/mal-id-filler-list/main/fillers/${animeInfo.malId}.json`, { validateStatus: () => true });
-                    if (!fillerData.toString().startsWith("404")) {
+                    if (!fillerData.toString().startsWith('404')) {
                         fillerEpisodes = [];
                         fillerEpisodes === null || fillerEpisodes === void 0 ? void 0 : fillerEpisodes.push(...fillerData.episodes);
                     }
@@ -1404,7 +1428,7 @@ class Anilist extends types_1.MediaProvier {
                         episode.image = animeInfo.image;
                     if (fetchFiller && (fillerEpisodes === null || fillerEpisodes === void 0 ? void 0 : fillerEpisodes.length) > 0) {
                         if (fillerEpisodes[episode.number - 1])
-                            episode.isFiller = new Boolean(fillerEpisodes[episode.number - 1]["filler-bool"]).valueOf();
+                            episode.isFiller = new Boolean(fillerEpisodes[episode.number - 1]['filler-bool']).valueOf();
                     }
                     return episode;
                 });
@@ -1454,10 +1478,10 @@ Anilist.Manga = class Manga {
         this.search = (query, page = 1, perPage = 20) => __awaiter(this, void 0, void 0, function* () {
             const options = {
                 headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
                 },
-                query: (0, queries_1.anilistSearchQuery)(query, page, perPage, "MANGA"),
+                query: (0, queries_1.anilistSearchQuery)(query, page, perPage, 'MANGA'),
             };
             try {
                 const { data } = yield axios_1.default.post(new Anilist().anilistGraphqlUrl, options);
@@ -1475,15 +1499,15 @@ Anilist.Manga = class Manga {
                                 native: item.title.native,
                                 userPreferred: item.title.userPreferred,
                             } || item.title.romaji,
-                            status: item.status == "RELEASING"
+                            status: item.status == 'RELEASING'
                                 ? types_1.MediaStatus.ONGOING
-                                : item.status == "FINISHED"
+                                : item.status == 'FINISHED'
                                     ? types_1.MediaStatus.COMPLETED
-                                    : item.status == "NOT_YET_RELEASED"
+                                    : item.status == 'NOT_YET_RELEASED'
                                         ? types_1.MediaStatus.NOT_YET_AIRED
-                                        : item.status == "CANCELLED"
+                                        : item.status == 'CANCELLED'
                                             ? types_1.MediaStatus.CANCELLED
-                                            : item.status == "HIATUS"
+                                            : item.status == 'HIATUS'
                                                 ? types_1.MediaStatus.HIATUS
                                                 : types_1.MediaStatus.UNKNOWN,
                             image: (_e = (_c = (_b = item.coverImage) === null || _b === void 0 ? void 0 : _b.extraLarge) !== null && _c !== void 0 ? _c : (_d = item.coverImage) === null || _d === void 0 ? void 0 : _d.large) !== null && _e !== void 0 ? _e : (_f = item.coverImage) === null || _f === void 0 ? void 0 : _f.medium,
@@ -1519,19 +1543,21 @@ Anilist.Manga = class Manga {
             var _b, _c, _d, _e, _f, _g, _h;
             const mangaInfo = {
                 id: id,
-                title: "",
+                title: '',
             };
             const options = {
                 headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
                 },
-                query: (0, queries_1.anilistMediaDetailQuery)(id, "MANGA"),
+                query: (0, queries_1.anilistMediaDetailQuery)(id, 'MANGA'),
             };
             try {
-                const { data } = yield axios_1.default.post(new Anilist().anilistGraphqlUrl, options).catch((err) => {
+                const { data } = yield axios_1.default
+                    .post(new Anilist().anilistGraphqlUrl, options)
+                    .catch((err) => {
                     console.log(err);
-                    throw new Error("Media not found");
+                    throw new Error('Media not found');
                 });
                 mangaInfo.malId = data.data.Media.idMal;
                 mangaInfo.title = {
@@ -1554,19 +1580,19 @@ Anilist.Manga = class Manga {
                 mangaInfo.cover = (_h = data.data.Media.bannerImage) !== null && _h !== void 0 ? _h : mangaInfo.image;
                 mangaInfo.description = data.data.Media.description;
                 switch (data.data.Media.status) {
-                    case "RELEASING":
+                    case 'RELEASING':
                         mangaInfo.status = types_1.MediaStatus.ONGOING;
                         break;
-                    case "FINISHED":
+                    case 'FINISHED':
                         mangaInfo.status = types_1.MediaStatus.COMPLETED;
                         break;
-                    case "NOT_YET_RELEASED":
+                    case 'NOT_YET_RELEASED':
                         mangaInfo.status = types_1.MediaStatus.NOT_YET_AIRED;
                         break;
-                    case "CANCELLED":
+                    case 'CANCELLED':
                         mangaInfo.status = types_1.MediaStatus.CANCELLED;
                         break;
-                    case "HIATUS":
+                    case 'HIATUS':
                         mangaInfo.status = types_1.MediaStatus.HIATUS;
                     default:
                         mangaInfo.status = types_1.MediaStatus.UNKNOWN;
@@ -1598,15 +1624,15 @@ Anilist.Manga = class Manga {
                             native: (_j = (_h = item.node.mediaRecommendation) === null || _h === void 0 ? void 0 : _h.title) === null || _j === void 0 ? void 0 : _j.native,
                             userPreferred: (_l = (_k = item.node.mediaRecommendation) === null || _k === void 0 ? void 0 : _k.title) === null || _l === void 0 ? void 0 : _l.userPreferred,
                         },
-                        status: ((_m = item.node.mediaRecommendation) === null || _m === void 0 ? void 0 : _m.status) == "RELEASING"
+                        status: ((_m = item.node.mediaRecommendation) === null || _m === void 0 ? void 0 : _m.status) == 'RELEASING'
                             ? types_1.MediaStatus.ONGOING
-                            : ((_o = item.node.mediaRecommendation) === null || _o === void 0 ? void 0 : _o.status) == "FINISHED"
+                            : ((_o = item.node.mediaRecommendation) === null || _o === void 0 ? void 0 : _o.status) == 'FINISHED'
                                 ? types_1.MediaStatus.COMPLETED
-                                : ((_p = item.node.mediaRecommendation) === null || _p === void 0 ? void 0 : _p.status) == "NOT_YET_RELEASED"
+                                : ((_p = item.node.mediaRecommendation) === null || _p === void 0 ? void 0 : _p.status) == 'NOT_YET_RELEASED'
                                     ? types_1.MediaStatus.NOT_YET_AIRED
-                                    : ((_q = item.node.mediaRecommendation) === null || _q === void 0 ? void 0 : _q.status) == "CANCELLED"
+                                    : ((_q = item.node.mediaRecommendation) === null || _q === void 0 ? void 0 : _q.status) == 'CANCELLED'
                                         ? types_1.MediaStatus.CANCELLED
-                                        : ((_r = item.node.mediaRecommendation) === null || _r === void 0 ? void 0 : _r.status) == "HIATUS"
+                                        : ((_r = item.node.mediaRecommendation) === null || _r === void 0 ? void 0 : _r.status) == 'HIATUS'
                                             ? types_1.MediaStatus.HIATUS
                                             : types_1.MediaStatus.UNKNOWN,
                         chapters: (_s = item.node.mediaRecommendation) === null || _s === void 0 ? void 0 : _s.chapters,
@@ -1643,15 +1669,15 @@ Anilist.Manga = class Manga {
                             native: item.node.title.native,
                             userPreferred: item.node.title.userPreferred,
                         },
-                        status: item.node.status == "RELEASING"
+                        status: item.node.status == 'RELEASING'
                             ? types_1.MediaStatus.ONGOING
-                            : item.node.status == "FINISHED"
+                            : item.node.status == 'FINISHED'
                                 ? types_1.MediaStatus.COMPLETED
-                                : item.node.status == "NOT_YET_RELEASED"
+                                : item.node.status == 'NOT_YET_RELEASED'
                                     ? types_1.MediaStatus.NOT_YET_AIRED
-                                    : item.node.status == "CANCELLED"
+                                    : item.node.status == 'CANCELLED'
                                         ? types_1.MediaStatus.CANCELLED
-                                        : item.node.status == "HIATUS"
+                                        : item.node.status == 'HIATUS'
                                             ? types_1.MediaStatus.HIATUS
                                             : types_1.MediaStatus.UNKNOWN,
                         chapters: item.node.chapters,
@@ -1681,10 +1707,10 @@ exports.default = Anilist;
  * Most of this code is from @consumet i have just modifed it a little
  * Its not intended for public use on use on my app (@ApolloTV)
  */
-(() => __awaiter(void 0, void 0, void 0, function* () {
-    const ext = new Anilist(new allanime_1.default());
-    const info = yield ext.getMediaInfo("21");
-    // const pages = await ext.getChapterPages(info.chapters![0].id);
-    const pages = yield ext.getMediaSources(info.episodes[0].id, "default", true);
-    console.log(pages);
-}))();
+// (async () => {
+//   const ext = new Anilist(new AllAnime());
+//   const info = await ext.getMediaInfo("21");
+//   // const pages = await ext.getChapterPages(info.chapters![0].id);
+//   const pages = await ext.getMediaSources(info.episodes![0]!.id, "default", true);
+//   console.log(pages);
+// })();
